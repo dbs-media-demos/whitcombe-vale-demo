@@ -42,8 +42,8 @@ export function PracticeIndex({ headingLevel = "h3" }: { headingLevel?: "h2" | "
     const rTo = gsap.quickTo(el, "rotate", { duration: 1.2, ease: "power3" });
     let lastX = 0;
     const onMove = (e: PointerEvent) => {
-      xTo(e.clientX + 36);
-      yTo(e.clientY - 200);
+      xTo(e.clientX + 120);
+      yTo(e.clientY - 180);
       rTo(gsap.utils.clamp(-6, 6, (e.clientX - lastX) * 0.4));
       lastX = e.clientX;
     };
