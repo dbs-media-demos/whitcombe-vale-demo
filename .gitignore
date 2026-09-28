@@ -42,3 +42,6 @@ next-env.d.ts
 
 # source photos (re-downloadable from scripts/photos.txt)
 /scripts/raw
+
+.vercel
+.env*
