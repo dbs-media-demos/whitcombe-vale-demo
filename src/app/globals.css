@@ -1,0 +1,511 @@
+@import "tailwindcss";
+
+/* ────────────────────────────────────────────────────────────────
+   Whitcombe & Vale — design tokens
+   Ink green · Chancery green · Parchment · Vellum · Charcoal
+   Brass (on dark) / Deep brass (on light) · Oxblood (rare marks)
+   Sections set a palette with .theme-ink / .theme-paper; components
+   use the semantic tokens (bg, fg, muted, line, accent).
+   ──────────────────────────────────────────────────────────────── */
+
+:root {
+  --ink: #0f2a22;
+  --ink-2: #16342a;
+  --ink-3: #1f3d32;
+  --parchment: #f3eee3;
+  --vellum: #e6ddcb;
+  --vellum-2: #d9ceb8;
+  --charcoal: #1c1c1a;
+  --brass: #b08d57;
+  --brass-light: #cdb083;
+  --brass-deep: #7a5c2e;
+  --oxblood: #6b1e23;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-slow: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --header-h: 4.75rem;
+}
+
+.theme-ink {
+  --bg: var(--ink);
+  --fg: var(--parchment);
+  --muted: color-mix(in oklab, var(--parchment) 70%, var(--ink));
+  --faint: color-mix(in oklab, var(--parchment) 60%, var(--ink));
+  --line: color-mix(in oklab, var(--parchment) 16%, transparent);
+  --line-strong: color-mix(in oklab, var(--parchment) 32%, transparent);
+  --surface: var(--ink-2);
+  --surface-2: var(--ink-3);
+  --accent: var(--brass);
+  --accent-fg: var(--ink);
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.theme-paper {
+  --bg: var(--parchment);
+  --fg: var(--charcoal);
+  --muted: color-mix(in oklab, var(--charcoal) 70%, var(--parchment));
+  --faint: color-mix(in oklab, var(--charcoal) 62%, var(--parchment));
+  --line: color-mix(in oklab, var(--charcoal) 14%, transparent);
+  --line-strong: color-mix(in oklab, var(--charcoal) 30%, transparent);
+  --surface: var(--vellum);
+  --surface-2: var(--vellum-2);
+  --accent: var(--brass-deep);
+  --accent-fg: var(--parchment);
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.theme-vellum {
+  --bg: var(--vellum);
+  --fg: var(--charcoal);
+  --muted: color-mix(in oklab, var(--charcoal) 74%, var(--vellum));
+  --faint: color-mix(in oklab, var(--charcoal) 66%, var(--vellum));
+  --line: color-mix(in oklab, var(--charcoal) 15%, transparent);
+  --line-strong: color-mix(in oklab, var(--charcoal) 32%, transparent);
+  --surface: var(--parchment);
+  --surface-2: var(--vellum-2);
+  --accent: #6e5226;
+  --accent-fg: var(--parchment);
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-parchment: var(--parchment);
+  --color-vellum: var(--vellum);
+  --color-charcoal: var(--charcoal);
+  --color-brass: var(--brass);
+  --color-brass-light: var(--brass-light);
+  --color-brass-deep: var(--brass-deep);
+  --color-oxblood: var(--oxblood);
+
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+
+  --font-display: var(--font-caslon-display), "Libre Caslon Display", Georgia, serif;
+  --font-serif: var(--font-caslon-text), "Libre Caslon Text", Georgia, serif;
+  --font-sans: var(--font-hanken), "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --ease-expo: var(--ease-out-expo);
+  --ease-quart: var(--ease-in-out-quart);
+}
+
+/* ───────────────────────── base ───────────────────────── */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--brass);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.theme-paper :focus-visible,
+.theme-vellum :focus-visible {
+  outline-color: var(--brass-deep);
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+/* Paper grain over everything, like a printed page. */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0.22;
+  /* Pre-rendered noise tile: an SVG feTurbulence filter here cost ~0.5 s of raster on phones. */
+  background-image: url("/grain.png");
+  background-size: 128px 128px;
+}
+
+/* ───────────────────────── type ───────────────────────── */
+
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.96;
+  letter-spacing: -0.018em;
+  font-feature-settings: "liga", "dlig", "kern";
+}
+.t-xxl {
+  font-size: clamp(3.3rem, 9.6vw, 10.5rem);
+}
+.t-xl {
+  font-size: clamp(2.7rem, 6.6vw, 6.8rem);
+}
+.t-lg {
+  font-size: clamp(2.2rem, 4.6vw, 4.6rem);
+  line-height: 1.02;
+}
+.t-md {
+  font-size: clamp(1.75rem, 3vw, 2.9rem);
+  line-height: 1.08;
+}
+.t-sm {
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  line-height: 1.15;
+}
+.t-serif {
+  font-family: var(--font-serif);
+}
+.t-lead {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 1.6vw, 1.42rem);
+  line-height: 1.55;
+}
+/* Tracked small caps: labels, section numbers, dates. */
+.t-caps {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.t-caps-sm {
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.t-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+.t-num {
+  font-variant-numeric: oldstyle-nums proportional-nums;
+}
+.prose-legal p + p {
+  margin-top: 1.1em;
+}
+.prose-legal h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  line-height: 1.1;
+  margin-top: 2.4em;
+  margin-bottom: 0.7em;
+}
+.prose-legal h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-top: 1.8em;
+  margin-bottom: 0.4em;
+}
+.prose-legal ul {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0;
+}
+.prose-legal ul li {
+  position: relative;
+  padding-left: 1.4em;
+  margin-top: 0.45em;
+}
+.prose-legal ul li::before {
+  content: "§";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-family: var(--font-serif);
+}
+.prose-legal a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.prose-legal blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.3em;
+  line-height: 1.45;
+  border-left: 1px solid var(--accent);
+  padding-left: 1.2em;
+  margin: 1.8em 0;
+}
+
+/* Drop cap for editorial openings. */
+.dropcap::first-letter {
+  font-family: var(--font-display);
+  float: left;
+  font-size: 4.6em;
+  line-height: 0.8;
+  padding: 0.08em 0.1em 0 0;
+  color: var(--accent);
+}
+
+/* ───────────────────────── rules & leaders ───────────────────────── */
+
+.rule {
+  height: 1px;
+  background: var(--line-strong);
+  transform-origin: left center;
+}
+/* Dotted leader, like a table of contents. */
+.leader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  height: 0.9em;
+  background-image: radial-gradient(circle, currentColor 0.9px, transparent 1.2px);
+  background-size: 8px 3px;
+  background-repeat: repeat-x;
+  background-position: left bottom;
+  opacity: 0.45;
+}
+
+/* Arch window mask. */
+.arch {
+  border-radius: 999px 999px 0 0 / 50vw 50vw 0 0;
+}
+.arch-sm {
+  border-radius: 999px 999px 4px 4px / 420px 420px 4px 4px;
+}
+
+/* ───────────────────────── above-the-fold CSS intros ───────────────────────── */
+/* Start partially visible so LCP/first paint isn't blocked on JS. */
+
+.anim-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.anim-line > span {
+  display: inline-block;
+  animation: line-up 1.5s var(--ease-out-expo) backwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes line-up {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.anim-fade {
+  animation: fade-up 1.4s var(--ease-out-expo) backwards;
+  animation-delay: var(--d, 0s);
+}
+/* A wipe rather than a fade: text is at full contrast while it appears. */
+@keyframes fade-up {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(18px);
+  }
+  to {
+    clip-path: inset(-30% -30% -30% -30%);
+    transform: none;
+  }
+}
+
+.anim-rule {
+  animation: rule-draw 1.8s var(--ease-out-expo) backwards;
+  animation-delay: var(--d, 0s);
+  transform-origin: left center;
+}
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* SplitReveal lines (JS) */
+.split-line {
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+
+/* ───────────────────────── marquee ───────────────────────── */
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-speed, 60s) linear infinite;
+}
+.marquee-wrap:hover .marquee {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Live open badge pulse. */
+.pulse-dot {
+  position: relative;
+}
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  animation: pulse 2.4s var(--ease-out-expo) infinite;
+}
+@keyframes pulse {
+  from {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Hero window light (CSS fallback for the WebGL layer). */
+.light-fallback {
+  background:
+    repeating-linear-gradient(112deg, transparent 0 6%, rgba(255, 236, 200, 0.12) 6% 9%, transparent 9% 14%),
+    radial-gradient(60% 50% at 70% 20%, rgba(255, 226, 180, 0.22), transparent 70%);
+  animation: light-drift 16s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+}
+@keyframes light-drift {
+  to {
+    transform: translateX(6%);
+    opacity: 0.7;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* ───────────────────────── view transitions ───────────────────────── */
+
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Page turn: old page settles back, a parchment sheet wipes the new one in. */
+::view-transition-old(.page) {
+  animation: page-out 600ms var(--ease-in-out-quart) both;
+}
+::view-transition-new(.page) {
+  animation: page-in 1000ms var(--ease-out-expo) 160ms both;
+}
+@keyframes page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-3vh);
+  }
+}
+@keyframes page-in {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(6vh);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+::view-transition-group(.morph) {
+  animation-duration: 900ms;
+  animation-timing-function: var(--ease-out-expo);
+  z-index: 50;
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+::view-transition-old(.morph),
+::view-transition-new(.morph) {
+  height: 100%;
+  object-fit: cover;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* ───────────────────────── reduced motion ───────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee {
+    animation: none;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
