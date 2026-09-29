@@ -4,7 +4,7 @@
 - Market / city: US – Dallas, TX
 - Languages: en
 - Live URL: https://whitcombe-vale-demo.vercel.app
-- Repo: local only (git initialised on `main`; GitHub remote pending)
+- Repo: https://github.com/dbs-media-demos/whitcombe-vale-demo (public, branch main)
 - Folder: DBS Media Portfolio/Demo Websites/law-firm
 - Stack: Next.js 16.3.6, React 19.2.8, Tailwind v4, GSAP 3.15 (ScrollTrigger, SplitText), Lenis
 - Palette: #0F2A22 ink green · #1F3D32 chancery green · #F3EEE3 parchment · #E6DDCB vellum · #1C1C1A charcoal · #B08D57 brass · #7A5C2E deep brass · #6B1E23 oxblood
