@@ -1,6 +1,6 @@
-# Whitcombe & Vale, PLLC (DBS Media demo)
+# Whitcombe & Vale, PLLC (Scale by Noon demo)
 
-- Niche: Law firm / professional services         (matches dbs-media.com industry id: professional-services)
+- Niche: Law firm / professional services         (matches scale-by-noon.vercel.app industry id: professional-services)
 - Market / city: US – Dallas, TX
 - Languages: en
 - Live URL: https://whitcombe-vale-demo.vercel.app

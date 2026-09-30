@@ -173,7 +173,7 @@ export function IntakeWizard() {
             </li>
           ))}
         </ol>
-        <p className="t-italic mt-10 text-sm text-faint">This is a concept website by DBS Media. No information was sent.</p>
+        <p className="t-italic mt-10 text-sm text-faint">This is a concept website by Scale by Noon. No information was sent.</p>
         <style>{`
           .seal-stamp { animation: stamp 1.1s cubic-bezier(.2,1.4,.4,1) both; }
           @keyframes stamp { 0% { transform: scale(2.4) rotate(-24deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: scale(1) rotate(-8deg); opacity: 1; } }

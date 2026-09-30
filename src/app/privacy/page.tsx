@@ -50,7 +50,7 @@ export default function PrivacyPage() {
           </p>
           <h2>About this website</h2>
           <p>
-            This is a concept website designed by DBS Media. {site.legalName} is a fictional firm, and forms on this site do not transmit or store any information.
+            This is a concept website designed by Scale by Noon. {site.legalName} is a fictional firm, and forms on this site do not transmit or store any information.
           </p>
         </div>
       </section>

@@ -46,7 +46,7 @@ export default function DisclaimerPage() {
           <p>Se habla español. Spanish-language consultations are available with Sofía Delgado and our bilingual staff.</p>
           <h2>Concept website</h2>
           <p>
-            This website was created by DBS Media as a design concept. {site.legalName}, its attorneys, clients, reviews and results are fictional. Portraits are
+            This website was created by Scale by Noon as a design concept. {site.legalName}, its attorneys, clients, reviews and results are fictional. Portraits are
             licensed stock photographs of models. The telephone number uses a reserved fictional range.
           </p>
         </div>

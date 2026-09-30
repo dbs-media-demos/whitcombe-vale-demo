@@ -3,7 +3,7 @@ import { Mark } from "@/components/brand/Logo";
 import { OpenBadge } from "@/components/ui/OpenBadge";
 import { DrawRule } from "@/components/ui/Reveal";
 import { practices } from "@/content/practice";
-import { addressLine, hoursSummary, site } from "@/content/site";
+import { addressLine, agencyName, agencyUrl, hoursSummary, site } from "@/content/site";
 
 const firmLinks = [
   { href: "/about", label: "About the firm" },
@@ -117,8 +117,8 @@ export function Footer() {
             </p>
             <p>
               Design &amp; development:{" "}
-              <a href="https://dbs-media.com" className="text-fg underline decoration-brass underline-offset-4">
-                DBS Media
+              <a href={agencyUrl} className="text-fg underline decoration-brass underline-offset-4">
+                {agencyName}
               </a>
             </p>
           </div>

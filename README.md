@@ -1,6 +1,6 @@
-# Whitcombe & Vale, PLLC (DBS Media concept site)
+# Whitcombe & Vale, PLLC (Scale by Noon concept site)
 
-A demo website for a fictional boutique Dallas law firm (family law, estate planning, small-business law), built by DBS Media to show law firms and other professional-services businesses what their site could be. See `DEMO.md` for the handoff summary.
+A demo website for a fictional boutique Dallas law firm (family law, estate planning, small-business law), built by Scale by Noon to show law firms and other professional-services businesses what their site could be. See `DEMO.md` for the handoff summary.
 
 ## Stack
 

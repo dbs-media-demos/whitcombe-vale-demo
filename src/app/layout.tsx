@@ -9,7 +9,7 @@ import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { Cursor } from "@/components/layout/Cursor";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { firmSchema, graph, websiteSchema } from "@/lib/schema";
-import { noindex, site, siteUrl } from "@/content/site";
+import { agencyName, noindex, site, siteUrl } from "@/content/site";
 import { ogImageUrl } from "@/lib/seo";
 
 // Headlines use "block": a late swap would re-wrap large display lines and shift the page.
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description: site.description,
   applicationName: site.legalName,
   authors: [{ name: site.legalName }],
-  creator: "DBS Media",
+  creator: agencyName,
   formatDetection: { telephone: false },
   robots: noindex ? { index: false, follow: false, googleBot: { index: false, follow: false } } : { index: true, follow: true },
   openGraph: {
