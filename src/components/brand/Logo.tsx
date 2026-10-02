@@ -1,4 +1,8 @@
+"use client";
+
 import clsx from "clsx";
+import { useBiz } from "@/components/preview/BizContext";
+import { L } from "@/lib/biz-core";
 
 /**
  * The W/V ligature: a W is literally two V's. The first V is drawn in the
@@ -22,14 +26,21 @@ export function Mark({ className, accent = "var(--brass)", title }: { className?
 }
 
 export function Logo({ className, compact }: { className?: string; compact?: boolean }) {
+  const biz = useBiz();
   return (
     <span className={clsx("inline-flex items-center gap-3", className)}>
       <Mark className="h-9 w-9 shrink-0" />
       <span className={clsx("flex flex-col leading-none", compact && "max-sm:hidden")}>
-        <span className="whitespace-nowrap text-[0.8rem] font-semibold tracking-[0.26em]">
-          WHITCOMBE <span className="t-italic px-0.5 text-[1.05rem] font-normal tracking-normal text-brass">&amp;</span> VALE
+        {biz.preview ? (
+          <span className="block max-w-[12rem] truncate whitespace-nowrap py-0.5 text-[0.8rem] font-semibold uppercase tracking-[0.2em] sm:max-w-[17rem]">{biz.shortName}</span>
+        ) : (
+          <span className="whitespace-nowrap text-[0.8rem] font-semibold tracking-[0.26em]">
+            WHITCOMBE <span className="t-italic px-0.5 text-[1.05rem] font-normal tracking-normal text-brass">&amp;</span> VALE
+          </span>
+        )}
+        <span className="t-caps-sm mt-1.5 text-[0.55rem] opacity-70">
+          {biz.preview ? L(biz, `Attorneys · ${biz.area}`, "Advokatska kancelarija") : "Attorneys · Est. MMIX · Dallas"}
         </span>
-        <span className="t-caps-sm mt-1.5 text-[0.55rem] opacity-70">Attorneys · Est. MMIX · Dallas</span>
       </span>
     </span>
   );

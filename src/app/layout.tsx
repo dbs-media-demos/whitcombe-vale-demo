@@ -1,21 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Hanken_Grotesk, Libre_Caslon_Display, Libre_Caslon_Text } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { MobileBar } from "@/components/layout/MobileBar";
-import { DemoPill } from "@/components/layout/DemoPill";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { Cursor } from "@/components/layout/Cursor";
-import { JsonLd } from "@/components/ui/JsonLd";
-import { firmSchema, graph, websiteSchema } from "@/lib/schema";
 import { agencyName, noindex, site, siteUrl } from "@/content/site";
 import { ogImageUrl } from "@/lib/seo";
 
 // Headlines use "block": a late swap would re-wrap large display lines and shift the page.
-const display = Libre_Caslon_Display({ weight: "400", subsets: ["latin"], variable: "--font-caslon-display", display: "block" });
-const serif = Libre_Caslon_Text({ weight: "400", style: ["normal", "italic"], subsets: ["latin"], variable: "--font-caslon-text", display: "swap" });
-const sans = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken", display: "swap", preload: false });
+const display = Libre_Caslon_Display({ weight: "400", subsets: ["latin", "latin-ext"], variable: "--font-caslon-display", display: "block" });
+const serif = Libre_Caslon_Text({ weight: "400", style: ["normal", "italic"], subsets: ["latin", "latin-ext"], variable: "--font-caslon-text", display: "swap" });
+const sans = Hanken_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-hanken", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -50,15 +44,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <Header />
+        {/* Header, footer and the rest come from (site)/layout or for/[token]/layout (SiteChrome) */}
         {children}
-        <Footer />
-        <MobileBar />
-        <DemoPill />
         <Cursor />
         <SmoothScroll />
         <div className="grain" aria-hidden />
-        <JsonLd data={graph(firmSchema(), websiteSchema())} />
       </body>
     </html>
   );

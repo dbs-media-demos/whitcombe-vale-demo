@@ -8,6 +8,7 @@ import { gsap, prefersReducedMotion } from "@/lib/gsap";
 import { revealOnScroll } from "@/lib/useIdleGSAP";
 import { parts, practices, type PartId } from "@/content/practice";
 import { photos } from "@/content/photos";
+import { useBiz } from "@/components/preview/BizContext";
 
 const PART_ORDER: PartId[] = ["family", "legacy", "enterprise"];
 
@@ -19,6 +20,8 @@ const PART_ORDER: PartId[] = ["family", "legacy", "enterprise"];
  * On touch screens every chapter carries its own small arch thumbnail.
  */
 export function PracticeIndex({ headingLevel = "h3" }: { headingLevel?: "h2" | "h3" }) {
+  const biz = useBiz();
+  const shown = biz.lang === "sr" ? practices.filter((p) => p.slug !== "trusts") : practices;
   const root = useRef<HTMLDivElement>(null);
   const preview = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<string | null>(null);
@@ -81,7 +84,7 @@ export function PracticeIndex({ headingLevel = "h3" }: { headingLevel?: "h2" | "
     <div ref={root} className="relative" onPointerLeave={() => setActive(null)}>
       {PART_ORDER.map((partId) => {
         const part = parts[partId];
-        const items = practices.filter((p) => p.part === partId);
+        const items = shown.filter((p) => p.part === partId);
         return (
           <Fragment key={partId}>
             <div data-row className="relative pt-14 first:pt-0">

@@ -7,7 +7,9 @@ import clsx from "clsx";
 import { Logo } from "@/components/brand/Logo";
 import { Phone } from "@/components/ui/Icons";
 import { OpenBadge } from "@/components/ui/OpenBadge";
-import { nav, site } from "@/content/site";
+import { nav } from "@/content/site";
+import { useBiz } from "@/components/preview/BizContext";
+import { telOf } from "@/lib/biz-core";
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
@@ -17,6 +19,8 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
  * scroll up. On small screens the menu opens a full-screen table of contents.
  */
 export function Header() {
+  const biz = useBiz();
+  const phoneHref = telOf(biz) ?? "";
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -110,9 +114,9 @@ export function Header() {
           </nav>
 
           <div className="relative z-10 flex items-center gap-2 sm:gap-4">
-            <a href={site.phoneHref} className="hidden min-h-11 items-center gap-2 text-[0.9rem] text-fg/85 transition-colors hover:text-fg md:inline-flex">
+            <a href={phoneHref} className="hidden min-h-11 items-center gap-2 text-[0.9rem] text-fg/85 transition-colors hover:text-fg md:inline-flex">
               <Phone className="text-brass" />
-              {site.phone}
+              {biz.phoneDisplay}
             </a>
             <Link
               href="/consultation"
@@ -166,8 +170,8 @@ export function Header() {
           <div className="mt-auto flex flex-col gap-4 pt-8">
             <OpenBadge className="text-sm text-muted" />
             <div className="flex flex-wrap gap-3">
-              <a href={site.phoneHref} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-line-strong px-5">
-                <Phone className="text-brass" /> {site.phone}
+              <a href={phoneHref} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-line-strong px-5">
+                <Phone className="text-brass" /> {biz.phoneDisplay}
               </a>
               <Link href="/consultation" className="inline-flex min-h-12 items-center rounded-full bg-brass px-5 font-medium text-ink">
                 Book a consultation

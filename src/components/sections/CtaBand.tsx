@@ -3,17 +3,20 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Parallax, SplitReveal } from "@/components/ui/Reveal";
 import { OpenBadge } from "@/components/ui/OpenBadge";
 import { photos, type PhotoKey } from "@/content/photos";
-import { site } from "@/content/site";
+import { defaultBiz } from "@/lib/biz";
+import { telOf, type Biz } from "@/lib/biz-core";
 
 /** The closing call to action on every page: a big line, an arch photograph and two ways in. */
 export function CtaBand({
   title = "Begin with a fifteen-minute conversation.",
   lead = "Free and confidential, with an attorney. We'll tell you honestly whether we're the right firm, and what happens next.",
   photo = "arch-lamp",
+  biz = defaultBiz,
 }: {
   title?: string;
   lead?: string;
   photo?: PhotoKey;
+  biz?: Biz;
 }) {
   return (
     <section aria-labelledby="cta-title" className="theme-vellum relative overflow-hidden px-[var(--gutter)] py-24 md:py-32">
@@ -26,9 +29,11 @@ export function CtaBand({
           <p className="t-lead mt-8 max-w-xl text-muted">{lead}</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="/consultation">Book a consultation</ButtonLink>
-            <ButtonLink href={site.phoneHref} variant="outline" arrow={false}>
-              Call {site.phone}
-            </ButtonLink>
+            {biz.phone && (
+              <ButtonLink href={telOf(biz)!} variant="outline" arrow={false}>
+                {biz.lang === "sr" ? `Pozovite ${biz.phoneDisplay}` : `Call ${biz.phoneDisplay}`}
+              </ButtonLink>
+            )}
           </div>
           <OpenBadge className="mt-8 text-sm text-muted" />
         </div>

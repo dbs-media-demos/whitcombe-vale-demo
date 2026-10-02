@@ -7,6 +7,8 @@ import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 import dynamic from "next/dynamic";
 import { photos } from "@/content/photos";
 import { site } from "@/content/site";
+import { useBiz } from "@/components/preview/BizContext";
+import { L } from "@/lib/biz-core";
 
 // The shader only starts when the browser is idle anyway, so its code loads after hydration.
 const WindowLight = dynamic(() => import("@/components/fx/WindowLight").then((m) => m.WindowLight), { ssr: false });
@@ -22,6 +24,8 @@ const d = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
  * so first paint and LCP never wait for JavaScript.
  */
 export function Threshold() {
+  const biz = useBiz();
+  const sr = biz.lang === "sr";
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -82,31 +86,44 @@ export function Threshold() {
         <div data-hero-meta className="anim-fade flex items-start justify-between gap-6" style={d(0.6)}>
           <p className="t-caps-sm max-w-[20rem] text-muted">Family · Estate · Business law</p>
           <p className="t-caps-sm hidden text-right text-muted sm:block">
-            Dallas, Texas
-            <br />
-            Est. {site.founded}
+            {biz.preview ? (
+              biz.area
+            ) : (
+              <>
+                Dallas, Texas
+                <br />
+                Est. {site.founded}
+              </>
+            )}
           </p>
         </div>
 
         <h1 id="hero-title" className="t-display relative z-10 text-[clamp(3.2rem,min(9vw,15vh),10rem)] leading-[0.9]">
           <span data-line="1" className="anim-line">
-            <span style={d(0.25)}>Quiet counsel</span>
+            <span style={d(0.25)}>{sr ? "Diskretan savet" : "Quiet counsel"}</span>
           </span>
           <span data-line="2" className="anim-line text-right">
             <span style={d(0.42)}>
-              for life&rsquo;s <em className="t-italic text-brass-light">defining</em>
+              {sr ? "za " : "for life’s "}
+              <em className="t-italic text-brass-light">{sr ? "presudne" : "defining"}</em>
             </span>
           </span>
           <span data-line="2" className="anim-line text-right">
             <span style={d(0.58)}>
-              <em className="t-italic text-brass-light">chapters.</em>
+              <em className="t-italic text-brass-light">{sr ? "trenutke." : "chapters."}</em>
             </span>
           </span>
         </h1>
 
         <div data-hero-meta className="anim-fade flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" style={d(0.9)}>
           <p className="t-lead max-w-md text-[1.2rem] text-fg/85 max-sm:hidden">
-            A boutique Dallas firm for divorce and custody, wills and trusts, and the business you&rsquo;re building. Discreet, direct and on your side.
+            {biz.preview
+              ? L(
+                  biz,
+                  "A boutique firm for divorce and custody, wills and trusts, and the business you’re building. Discreet, direct and on your side.",
+                  "Advokatska kancelarija za razvod i decu, testamente i nasleđe, i posao koji gradite. Diskretno, direktno i na vašoj strani.",
+                )
+              : "A boutique Dallas firm for divorce and custody, wills and trusts, and the business you’re building. Discreet, direct and on your side."}
           </p>
           <div className="flex items-center gap-5">
             <Link
@@ -129,7 +146,13 @@ export function Threshold() {
       {/* Revealed once the arch has opened */}
       <div data-inside aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0">
         <p className="t-display px-6 text-center text-[clamp(2.4rem,6vw,6rem)] leading-none">
-          Come <em className="t-italic text-brass-light">in.</em>
+          {sr ? (
+            <em className="t-italic text-brass-light">Izvolite.</em>
+          ) : (
+            <>
+              Come <em className="t-italic text-brass-light">in.</em>
+            </>
+          )}
         </p>
       </div>
 

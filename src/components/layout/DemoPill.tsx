@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { agencyName, agencyUrl } from "@/content/site";
+import { useBiz } from "@/components/preview/BizContext";
 
 const KEY = "wv-demo-pill-dismissed";
 
 /** Small fixed pill that marks the site as a Scale by Noon concept. Dismissible for the session. */
 export function DemoPill() {
+  const biz = useBiz();
   const [show, setShow] = useState(false);
   useEffect(() => {
     let dismissed = false;
@@ -20,10 +22,19 @@ export function DemoPill() {
   return (
     <div className="anim-fade fixed bottom-[5.2rem] left-3 z-[66] flex items-center rounded-full border border-parchment/20 bg-charcoal/90 pl-3.5 text-[0.7rem] md:pl-4 md:text-[0.78rem] text-parchment shadow-lg backdrop-blur md:bottom-4 md:left-4" style={{ "--d": "2.5s" } as React.CSSProperties}>
       <a href={agencyUrl} className="inline-flex min-h-10 items-center gap-1.5 pr-1 hover:text-brass-light">
-        <span>
-          Concept <span className="hidden sm:inline">site </span>by
-        </span>
-        <strong className="font-semibold">{agencyName}</strong> <span aria-hidden>↗</span>
+        {biz.preview ? (
+          <span className="inline-block max-w-[15rem] truncate align-bottom sm:max-w-none">
+            {biz.lang === "sr" ? `Pregled za ${biz.shortName} · ` : `Preview for ${biz.shortName} · by `}
+            <strong className="font-semibold">{agencyName}</strong> <span aria-hidden>↗</span>
+          </span>
+        ) : (
+          <>
+            <span>
+              Concept <span className="hidden sm:inline">site </span>by
+            </span>
+            <strong className="font-semibold">{agencyName}</strong> <span aria-hidden>↗</span>
+          </>
+        )}
       </a>
       <button
         type="button"

@@ -6,13 +6,14 @@ import { gsap, prefersReducedMotion } from "@/lib/gsap";
 import { useIdleGSAP } from "@/lib/useIdleGSAP";
 import { photos, type PhotoKey } from "@/content/photos";
 import { site } from "@/content/site";
+import { useBiz } from "@/components/preview/BizContext";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 
-const steps: { n: string; title: string; body: string; meta: string; photo: PhotoKey; alt: string }[] = [
+const baseSteps: { n: string; title: string; body: string; meta: string; photo: PhotoKey; alt: string }[] = [
   {
     n: "I",
     title: "Reach out",
-    body: `Call ${site.phone}, book online or write to us. We run a conflict check first, so we only ask for names, not details.`,
+    body: "Call {phone}, book online or write to us. We run a conflict check first, so we only ask for names, not details.",
     meta: "Reply within one business day",
     photo: "blinds",
     alt: "Afternoon light falling through blinds onto a wall",
@@ -59,6 +60,13 @@ const PATH = "M0 50 C 60 50 80 70 125 70 S 300 30 375 30 S 550 70 625 70 S 800 3
  * same line runs vertically down the list.
  */
 export function ConsultationGuide() {
+  const biz = useBiz();
+  const phone = biz.preview ? biz.phoneDisplay || (biz.lang === "sr" ? "nas" : "us") : site.phone;
+  // Step I carries the phone number, so its Serbian text is set here rather than in i18n/sr
+  const steps = baseSteps.map((s, i) => ({
+    ...s,
+    body: (i === 0 && biz.lang === "sr" ? "Pozovite {phone}, zakažite onlajn ili nam pišite. Prvo proveravamo sukob interesa, pa tražimo samo imena, ne i detalje." : s.body).replace("{phone}", phone),
+  }));
   const root = useRef<HTMLElement>(null);
 
   useIdleGSAP(
