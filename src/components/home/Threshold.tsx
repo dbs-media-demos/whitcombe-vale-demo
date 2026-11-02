@@ -9,6 +9,7 @@ import { photos } from "@/content/photos";
 import { site } from "@/content/site";
 import { useBiz } from "@/components/preview/BizContext";
 import { L } from "@/lib/biz-core";
+import { HeroSeal } from "@/components/home/HeroSeal";
 
 // The shader only starts when the browser is idle anyway, so its code loads after hydration.
 const WindowLight = dynamic(() => import("@/components/fx/WindowLight").then((m) => m.WindowLight), { ssr: false });
@@ -47,6 +48,7 @@ export function Threshold() {
           .to("[data-line='1']", { xPercent: desktop ? -18 : -8, opacity: 0, duration: 0.7 }, 0)
           .to("[data-line='2']", { xPercent: desktop ? 18 : 8, opacity: 0, duration: 0.7 }, 0)
           .to("[data-hero-meta]", { opacity: 0, y: -20, duration: 0.4 }, 0)
+          .to("[data-seal]", { opacity: 0, scale: 0.9, duration: 0.3 }, 0.5)
           .fromTo("[data-inside]", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, 0.55);
       });
       return () => mm.revert();
@@ -98,7 +100,12 @@ export function Threshold() {
           </p>
         </div>
 
-        <h1 id="hero-title" className="t-display relative z-10 text-[clamp(3.2rem,min(9vw,15vh),10rem)] leading-[0.9]">
+        <div className="relative z-10 text-[clamp(3.2rem,min(9vw,15vh),10rem)]">
+        {/* Stamped beside the headline: at the crown of the arch on phones, in the hollow below line one on larger screens */}
+        <div data-seal className="absolute inset-x-0 bottom-full mx-auto mb-[4vh] w-[7rem] md:bottom-auto md:left-[0.04em] md:right-auto md:top-[1.02em] md:mx-0 md:mb-0 md:w-[1.8em]">
+          <HeroSeal />
+        </div>
+        <h1 id="hero-title" className="t-display leading-[0.9]">
           <span data-line="1" className="anim-line">
             <span style={d(0.25)}>{sr ? "Diskretan savet" : "Quiet counsel"}</span>
           </span>
@@ -114,6 +121,7 @@ export function Threshold() {
             </span>
           </span>
         </h1>
+        </div>
 
         <div data-hero-meta className="anim-fade flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" style={d(0.9)}>
           <p className="t-lead max-w-md text-[1.2rem] text-fg/85 max-sm:hidden">
@@ -168,6 +176,16 @@ export function Threshold() {
         }
         .threshold-curtain { transform: scaleY(0); animation: curtain 2s var(--ease-in-out-quart) 0.15s backwards; }
         @keyframes curtain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+        .seal-stamp { animation: seal-stamp 0.9s cubic-bezier(.3,0,.2,1) 1.05s backwards; }
+        @keyframes seal-stamp {
+          0% { opacity: 0; transform: scale(1.5) rotate(-18deg); filter: blur(6px); }
+          70% { opacity: 1; transform: scale(0.965) rotate(0deg); filter: blur(0); }
+          100% { opacity: 1; transform: none; }
+        }
+        .seal-press { opacity: 0; animation: seal-press 1.3s var(--ease-out-expo) 1.68s; }
+        @keyframes seal-press { from { opacity: 0.9; transform: scale(0.98); } to { opacity: 0; transform: scale(1.45); } }
+        .seal-ring { transform-box: view-box; transform-origin: 100px 100px; animation: seal-turn 120s linear infinite; }
+        @keyframes seal-turn { to { transform: rotate(360deg); } }
         .scroll-cue { animation: cue 2.4s var(--ease-in-out-quart) infinite; }
         @keyframes cue { from { transform: translateY(-100%); } to { transform: translateY(200%); } }
       `}</style>

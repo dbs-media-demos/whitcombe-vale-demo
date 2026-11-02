@@ -1,6 +1,8 @@
 import { OpenBadge } from "@/components/ui/OpenBadge";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { DAY_NAMES, L, dayRange, weekFromMonday, type Biz } from "@/lib/biz-core";
+import { HoursLedger } from "@/components/ui/HoursLedger";
+import { UnfoldFrame } from "@/components/ui/UnfoldFrame";
+import { L, type Biz } from "@/lib/biz-core";
 
 /** A preview's "where we practise": the firm's real address on a Google map, hours and directions. */
 export function PreviewMap({ biz }: { biz: Biz }) {
@@ -27,16 +29,7 @@ export function PreviewMap({ biz }: { biz: Biz }) {
           <p className="mt-3 max-w-md text-muted">{L(biz, "Meetings at the office, by phone or by video.", "Sastanci u kancelariji, telefonom ili video-pozivom.")}</p>
           <div className="mt-10">
             <OpenBadge className="t-caps-sm text-accent" />
-            {biz.hours && (
-              <dl className="mt-3 max-w-sm space-y-1.5 text-sm">
-                {weekFromMonday(biz.hours).map((h) => (
-                  <div key={h.day} className="flex justify-between gap-4 border-b border-line pb-1.5">
-                    <dt className="text-muted">{DAY_NAMES[biz.lang][h.day]}</dt>
-                    <dd className="text-right">{dayRange(h, biz.lang)}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
+            <HoursLedger biz={biz} className="mt-3 max-w-sm" />
           </div>
           <ButtonLink href={directions} variant="outline" className="mt-10">
             {L(biz, "Get directions", "Kako do nas")}
@@ -44,9 +37,9 @@ export function PreviewMap({ biz }: { biz: Biz }) {
         </div>
         <div className="lg:col-span-7">
           <div className="relative aspect-[4/3] border border-line bg-surface/50 p-4 sm:p-8">
-            <div className="relative h-full w-full overflow-hidden">
+            <UnfoldFrame className="h-full w-full">
               <iframe src={embed} title={L(biz, `Map: ${query}`, `Mapa: ${query}`)} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="absolute inset-0 h-full w-full border-0" />
-            </div>
+            </UnfoldFrame>
           </div>
         </div>
       </div>

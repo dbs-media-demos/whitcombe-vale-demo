@@ -509,3 +509,22 @@ img {
     animation-delay: 0s !important;
   }
 }
+
+/* Review "letters": askew on the desk, straightened and lifted on hover. */
+.letter {
+  transition: rotate 0.9s var(--ease-out-expo), translate 0.9s var(--ease-out-expo), border-color 0.9s var(--ease-out-expo), box-shadow 0.9s var(--ease-out-expo);
+}
+.letter:hover {
+  rotate: 0deg;
+  translate: 0 -6px;
+  border-color: color-mix(in oklab, var(--brass) 55%, transparent);
+  box-shadow: 0 24px 50px -30px rgba(0, 0, 0, 0.7);
+}
+
+/* Casebook: redaction bars that lift off the anonymised outcomes. */
+.redaction-bar {
+  position: absolute;
+  background: var(--charcoal, #1c1c1a);
+  transform-origin: right center;
+  pointer-events: none;
+}

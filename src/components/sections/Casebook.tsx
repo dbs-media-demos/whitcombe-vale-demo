@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
+import { Redacted } from "@/components/ui/Redacted";
 import { stories } from "@/content/results";
 import { photos } from "@/content/photos";
 
-/** Three anonymised client stories set in newspaper columns with vertical rules. */
+/** Three anonymised client stories set in newspaper columns with vertical rules; each outcome arrives redacted and is cleared line by line. */
 export function Casebook({ ids = ["relocation", "muniment", "founders"] }: { ids?: string[] }) {
   const items = ids.map((id) => stories.find((s) => s.id === id)!).filter(Boolean);
   return (
@@ -17,7 +18,9 @@ export function Casebook({ ids = ["relocation", "muniment", "founders"] }: { ids
               <Image src={photos[s.photo]} alt="" fill sizes="(min-width: 768px) 30vw, 90vw" className="object-cover" />
             </div>
             <h3 className="t-display mt-6 text-[clamp(1.5rem,2vw,1.95rem)] leading-[1.1]">{s.title}</h3>
-            <p className="mt-4 text-[0.95rem] text-muted">{s.outcome}</p>
+            <Redacted className="mt-4 text-[0.95rem] text-muted" delay={0.9 + i * 0.3}>
+              {s.outcome}
+            </Redacted>
             <div className="mt-auto flex items-end justify-between gap-4 pt-8">
               <p>
                 <span className="t-display block text-5xl leading-none">{s.figure.value}</span>

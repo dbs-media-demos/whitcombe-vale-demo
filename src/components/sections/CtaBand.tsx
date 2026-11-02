@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Parallax, SplitReveal } from "@/components/ui/Reveal";
 import { OpenBadge } from "@/components/ui/OpenBadge";
+import { PenMark } from "@/components/ui/PenMark";
 import { photos, type PhotoKey } from "@/content/photos";
 import { defaultBiz } from "@/lib/biz";
 import { telOf, type Biz } from "@/lib/biz-core";
@@ -26,7 +27,15 @@ export function CtaBand({
           <SplitReveal as="h2" id="cta-title" className="t-display t-xl mt-6">
             {title}
           </SplitReveal>
-          <p className="t-lead mt-8 max-w-xl text-muted">{lead}</p>
+          {/* A fountain-pen flourish that writes itself as the reader scrolls towards the close */}
+          <PenMark
+            scrub
+            viewBox="0 0 600 60"
+            strokeWidth={1.3}
+            paths={["M4 42 C 90 36 170 22 258 27 C 336 31 372 47 424 37 C 470 28 482 8 458 9 C 434 10 442 41 484 43 C 532 45 570 31 596 21"]}
+            className="mt-7 aspect-[10/1] w-[min(30rem,88%)] text-accent"
+          />
+          <p className="t-lead mt-6 max-w-xl text-muted">{lead}</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="/consultation">Book a consultation</ButtonLink>
             {biz.phone && (
