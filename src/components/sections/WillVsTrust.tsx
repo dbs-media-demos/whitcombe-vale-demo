@@ -53,6 +53,8 @@ const verdict: Record<Doc, { line: string; href: string; cta: string }> = {
 /**
  * "Will or trust?" An interactive comparison: a brass toggle swaps every row,
  * the answers roll over like a split-flap board and the meters re-measure.
+ * Beside it lies the document itself, a backed legal instrument that turns
+ * over from "Last Will and Testament" to "Living Trust Agreement".
  */
 export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string }) {
   const root = useRef<HTMLDivElement>(null);
@@ -83,10 +85,17 @@ export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string })
     const el = root.current;
     if (!el || prefersReducedMotion()) return;
     const r = el.querySelectorAll("[data-row]");
+    const paper = el.querySelector("[data-paper]");
     return revealOnScroll(
       el,
-      () => gsap.set(r, { opacity: 0, y: 24 }),
-      () => gsap.to(r, { opacity: 1, y: 0, duration: 1.2, stagger: 0.07, ease: "expo.out", clearProps: "transform" }),
+      () => {
+        gsap.set(r, { opacity: 0, y: 24 });
+        gsap.set(paper, { opacity: 0, y: 40, rotation: -10 });
+      },
+      () => {
+        gsap.to(r, { opacity: 1, y: 0, duration: 1.2, stagger: 0.07, ease: "expo.out", clearProps: "transform" });
+        gsap.to(paper, { opacity: 1, y: 0, rotation: 0, duration: 1.6, delay: 0.2, ease: "expo.out" });
+      },
     );
   }, []);
 
@@ -126,7 +135,23 @@ export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string })
             </button>
           ))}
         </div>
-        <p className="t-italic max-w-sm text-muted">Tap to compare. Every Texas family is different; this is the general picture, not advice for yours.</p>
+        <div className="flex items-center gap-6">
+          <div data-paper aria-hidden className="legal-doc" data-side={doc}>
+            <div className="legal-doc-inner">
+              <div className="legal-doc-face">
+                <span className="legal-doc-kicker">Last Will</span>
+                <span className="legal-doc-title">and Testament</span>
+                <span className="legal-doc-seal" />
+              </div>
+              <div className="legal-doc-face legal-doc-back">
+                <span className="legal-doc-kicker">Living Trust</span>
+                <span className="legal-doc-title">Agreement</span>
+                <span className="legal-doc-seal" />
+              </div>
+            </div>
+          </div>
+          <p className="t-italic max-w-sm text-muted">Tap to compare. Every Texas family is different; this is the general picture, not advice for yours.</p>
+        </div>
       </div>
 
       <dl className="mt-12 border-t border-line-strong" aria-live="polite">

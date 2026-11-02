@@ -18,6 +18,8 @@ const PART_ORDER: PartId[] = ["family", "legacy", "enterprise"];
  * arch-framed photograph and summary beside the cursor; clicking morphs that
  * photograph into the chapter page's hero (shared-element view transition).
  * On touch screens every chapter carries its own small arch thumbnail.
+ * Each part has a leather thumb-index tab at the page edge, as on a bound
+ * code book, which slides out as the part arrives.
  */
 export function PracticeIndex({ headingLevel = "h3" }: { headingLevel?: "h2" | "h3" }) {
   const biz = useBiz();
@@ -61,17 +63,20 @@ export function PracticeIndex({ headingLevel = "h3" }: { headingLevel?: "h2" | "
     const stops = Array.from(el.querySelectorAll<HTMLElement>("[data-row]")).map((row) => {
       const rule = row.querySelector("[data-rule]");
       const content = row.querySelectorAll("[data-rise]");
+      const thumb = row.querySelector("[data-thumb]");
       return revealOnScroll(
         row,
         () => {
           gsap.set(content, { opacity: 0, y: 26 });
           gsap.set(rule, { scaleX: 0 });
+          if (thumb) gsap.set(thumb, { xPercent: 105 });
         },
         () => {
-          gsap
+          const tl = gsap
             .timeline()
             .to(rule, { scaleX: 1, duration: 1.6, ease: "expo.inOut" })
             .to(content, { opacity: 1, y: 0, duration: 1.3, stagger: 0.06, ease: "expo.out", clearProps: "transform" }, 0.25);
+          if (thumb) tl.to(thumb, { xPercent: 0, duration: 1.2, ease: "expo.out" }, 0.9);
         },
       );
     });
@@ -89,6 +94,9 @@ export function PracticeIndex({ headingLevel = "h3" }: { headingLevel?: "h2" | "
           <Fragment key={partId}>
             <div data-row className="relative pt-14 first:pt-0">
               <div data-rule className="rule origin-left" />
+              <span aria-hidden className="thumb-tab">
+                <span data-thumb>{["I", "II", "III"][PART_ORDER.indexOf(partId)]}</span>
+              </span>
               <div data-rise className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 pt-4">
                 <p className="t-caps text-accent">
                   {part.numeral} · {part.name}

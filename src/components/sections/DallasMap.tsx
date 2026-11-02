@@ -29,7 +29,15 @@ const places = [
  * An engraved-style map of central Dallas (not to scale): highways, the
  * Trinity River, White Rock Lake and the neighbourhoods we serve. Lines draw
  * in as the map scrolls into view. Deliberately abstract, not a real-address pin.
+ * Once the office is pinned, a line of footsteps walks from its door to the
+ * county courthouse, where a small pediment rises: the walk to court.
  */
+
+// Footsteps from the office door towards the courthouse, along a gentle curve
+const steps = Array.from({ length: 7 }, (_, i) => {
+  const t = (i + 1) / 8;
+  return { x: 390 - 42 * t, y: 326 + 14 * Math.sin(Math.PI * t) - 6 * t };
+});
 export function DallasMap() {
   const root = useRef<SVGSVGElement>(null);
   useEffect(() => {
@@ -38,18 +46,24 @@ export function DallasMap() {
     const lines = el.querySelectorAll("[data-draw]");
     const labels = el.querySelectorAll("[data-label]");
     const office = el.querySelector("[data-office]");
+    const feet = el.querySelectorAll("[data-foot]");
+    const court = el.querySelectorAll("[data-court]");
     return revealOnScroll(
       el,
       () => {
         gsap.set(lines, { strokeDasharray: 1, strokeDashoffset: 1 });
         gsap.set(labels, { opacity: 0 });
+        gsap.set(feet, { opacity: 0 });
+        gsap.set(court, { opacity: 0, y: 8 });
       },
       () => {
         gsap
           .timeline()
           .to(lines, { strokeDashoffset: 0, duration: 2.6, stagger: 0.12, ease: "expo.inOut" })
           .to(labels, { opacity: 1, duration: 0.8, stagger: 0.04 }, 1.2)
-          .fromTo(office, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 1.2, ease: "elastic.out(1,0.5)" }, 1.6);
+          .fromTo(office, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 1.2, ease: "elastic.out(1,0.5)" }, 1.6)
+          .to(feet, { opacity: 0.75, duration: 0.25, stagger: 0.16, ease: "power1.out" }, 2.4)
+          .to(court, { opacity: 1, y: 0, duration: 1, stagger: 0.12, ease: "expo.out" }, 3.4);
       },
     );
   }, []);
@@ -109,6 +123,18 @@ export function DallasMap() {
       </text>
       <text data-label x="12" y="330" data-edge className="fill-current text-[10px] tracking-[0.18em] opacity-60" style={{ fontFamily: "var(--font-sans)" }}>
         ← LAS COLINAS
+      </text>
+      {/* The walk to court */}
+      {steps.map((f, i) => (
+        <circle key={i} data-foot cx={f.x} cy={f.y} r="2.3" fill="var(--brass)" opacity="0.75" />
+      ))}
+      <g transform="translate(330 318) scale(1.6)">
+        <g data-court fill="none" stroke="var(--accent)" strokeWidth="0.9" strokeLinejoin="round">
+          <path d="M-10 -5 L0 -12 L10 -5 Z M-9 -3 H9 M-6 -1 V6 M-2 -1 V6 M2 -1 V6 M6 -1 V6 M-10 8 H10" />
+        </g>
+      </g>
+      <text data-court x="308" y="324" textAnchor="end" className="text-[13px] italic" fill="var(--accent)" style={{ fontFamily: "var(--font-serif)" }}>
+        County courts
       </text>
       {/* The office */}
       <g data-office>

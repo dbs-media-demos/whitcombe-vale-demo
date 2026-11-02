@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
-import { useIdleGSAP } from "@/lib/useIdleGSAP";
+import { revealOnScroll, useIdleGSAP } from "@/lib/useIdleGSAP";
 import { photos, type PhotoKey } from "@/content/photos";
 import { site } from "@/content/site";
 import { useBiz } from "@/components/preview/BizContext";
@@ -57,7 +57,8 @@ const PATH = "M0 50 C 60 50 80 70 125 70 S 300 30 375 30 S 550 70 625 70 S 800 3
  * "Your first consultation". On desktop the section pins; a single brass line
  * draws itself like a pen stroke through four steps, each step inking in as
  * the line reaches it while the background photograph changes. On phones the
- * same line runs vertically down the list.
+ * same line runs vertically down the list. When the pen reaches step IV, the
+ * fee agreement, a "Signed" stamp lands on it: nothing starts before that.
  */
 export function ConsultationGuide() {
   const biz = useBiz();
@@ -98,6 +99,12 @@ export function ConsultationGuide() {
             tl.to(bgs[i - 1], { opacity: 0, duration: 0.4 }, at - 0.1).to(bgs[i], { opacity: 1, duration: 0.4 }, at - 0.1);
           }
         });
+        tl.fromTo(
+          el.querySelector("[data-stamp-desk]"),
+          { opacity: 0, scale: 1.7, rotation: -19 },
+          { opacity: 1, scale: 1, rotation: -7, duration: 0.3, ease: "back.out(2)" },
+          3.35 + 0.45,
+        );
         tl.to({}, { duration: 0.4 });
       });
 
@@ -107,6 +114,12 @@ export function ConsultationGuide() {
         gsap.utils.toArray<HTMLElement>("[data-step]", el).forEach((s) => {
           gsap.fromTo(s, { x: 28 }, { x: 0, ease: "none", scrollTrigger: { trigger: s, start: "top 90%", end: "top 55%", scrub: true } });
         });
+        const stamp = el.querySelector("[data-stamp-phone]")!;
+        return revealOnScroll(
+          stamp,
+          () => gsap.set(stamp, { opacity: 0, scale: 1.7, rotation: -19 }),
+          () => gsap.to(stamp, { opacity: 1, scale: 1, rotation: -7, duration: 0.5, delay: 0.35, ease: "back.out(2)" }),
+        );
       });
       return () => mm.revert();
     },
@@ -156,7 +169,7 @@ export function ConsultationGuide() {
             </span>
           ))}
           <ol className="absolute inset-x-0 bottom-0 grid grid-cols-4 gap-8">
-            {steps.map((s) => (
+            {steps.map((s, i) => (
               <li key={s.n} data-step className="pr-4">
                 <p data-rise className="t-caps-sm text-brass">
                   Step {s.n}
@@ -170,6 +183,11 @@ export function ConsultationGuide() {
                 <p data-rise className="t-italic mt-4 text-sm text-brass-light">
                   {s.meta}
                 </p>
+                {i === steps.length - 1 && (
+                  <span data-stamp-desk aria-hidden className="signed-stamp mt-5">
+                    Signed
+                  </span>
+                )}
               </li>
             ))}
           </ol>
@@ -180,7 +198,7 @@ export function ConsultationGuide() {
           <div aria-hidden className="absolute bottom-2 left-[1.35rem] top-2 w-px bg-line" />
           <div aria-hidden data-vline className="absolute bottom-2 left-[1.35rem] top-2 w-px origin-top bg-brass" />
           <ol className="space-y-14">
-            {steps.map((s) => (
+            {steps.map((s, i) => (
               <li key={s.n} data-step className="relative grid grid-cols-[2.75rem_1fr] gap-5">
                 <span aria-hidden className="t-caps-sm relative z-10 flex h-11 w-11 items-center justify-center rounded-full border border-brass bg-ink text-brass">
                   {s.n}
@@ -189,6 +207,11 @@ export function ConsultationGuide() {
                   <h3 className="t-display text-[1.8rem] leading-[1.05]">{s.title}</h3>
                   <p className="mt-3 text-muted">{s.body}</p>
                   <p className="t-italic mt-3 text-sm text-brass-light">{s.meta}</p>
+                  {i === steps.length - 1 && (
+                    <span data-stamp-phone aria-hidden className="signed-stamp mt-6">
+                      Signed
+                    </span>
+                  )}
                   <div className="arch-sm relative mt-6 aspect-[4/3] w-full max-w-sm overflow-hidden">
                     <Image src={photos[s.photo]} alt={s.alt} fill sizes="(max-width: 640px) 80vw, 384px" className="object-cover" />
                   </div>

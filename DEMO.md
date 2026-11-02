@@ -17,17 +17,19 @@
 - Signature features:
   - "The Threshold" hero: a tall arched window with a WebGL layer of drifting window light and dust. It opens to full-bleed as you scroll ("Come in.").
   - The firm's seal is stamped beside the headline: an engraved ring with the firm's name (the real firm's on a preview) around a pair of scales that sway, lean towards the pointer, swing with the scroll and settle level as the arch opens.
-  - Practice areas as a book's table of contents: chapter numerals, dotted leaders and page numbers. Hovering floats an arch-framed photo that follows the cursor; clicking morphs it into the chapter hero (React `ViewTransition`).
-  - "Your first consultation": a pinned section where a brass pen stroke draws through four steps as background photos change. Vertical version on phones.
+  - Practice areas as a book's table of contents: chapter numerals, dotted leaders and page numbers, with leather thumb-index tabs sliding out at the page edge, one per part. Hovering floats an arch-framed photo that follows the cursor; clicking morphs it into the chapter hero (React `ViewTransition`).
+  - "Your first consultation": a pinned section where a brass pen stroke draws through four steps as background photos change, and a "Signed" stamp lands on the fee agreement. Vertical version on phones.
   - Case intake wizard: matter, then 3–4 questions, then a day/time picker with booked slots, then contact details. The attorney-client notice is always shown. It ends with an oxblood wax-seal stamp and a matter number.
-  - Will vs living trust explainer: a brass toggle; answers roll over split-flap style and meters re-measure.
+  - Will vs living trust explainer: a brass toggle; answers roll over split-flap style, meters re-measure and the backed document beside it turns over from "Last Will and Testament" to "Living Trust Agreement".
   - Also:
+    - the firm's one rule highlighted line by line, like the key clause of a contract;
+    - partners' signatures that write themselves under their words;
     - brass pen annotations (the rating circled, a word underlined, a flourish that writes itself in the closing band);
     - client stories that arrive redacted and are cleared line by line;
     - review "letters" laid askew that speed up or run backwards with the scroll;
     - on previews, the map unfolds from its creases and today's opening hours get a brass ribbon;
-    - margin footnotes and a horizontal "plates" gallery;
-    - an engraved Dallas map that draws itself;
+    - margin footnotes and a horizontal "plates" gallery, each plate tagged as an exhibit (A–F) as it arrives;
+    - an engraved Dallas map that draws itself, then walks footsteps from the office to the county courts;
     - a live "Open now" badge (Dallas time);
     - page-turn route transitions, a brass cursor ring and a credentials marquee.
 - Lighthouse (mobile, home): P 86 / A 100 / BP 100 / SEO 69 (noindex by design; the same build scores SEO 100 with `NEXT_PUBLIC_NOINDEX=false`)

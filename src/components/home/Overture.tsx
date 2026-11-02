@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Parallax, Reveal, ScrubWords, DrawRule } from "@/components/ui/Reveal";
 import { Counter } from "@/components/ui/Counter";
 import { Footnote } from "@/components/ui/Footnote";
+import { ClauseMark } from "@/components/ui/ClauseMark";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { photos } from "@/content/photos";
 import { defaultBiz } from "@/lib/biz";
@@ -14,7 +15,7 @@ const stats = [
   { value: 15, label: "Minute first call, always free", format: { suffix: " min" } },
 ];
 
-/** Opening statement: a paragraph that inks in as you read it, with the firm in four numbers. */
+/** Opening statement: a paragraph that inks in as you read it, the firm's one rule highlighted like a key clause, and the firm in four numbers. */
 export function Overture({ biz = defaultBiz }: { biz?: Biz }) {
   const days = openDays(biz);
   // A preview states only what's true of the real firm: its rating and opening days
@@ -55,19 +56,19 @@ export function Overture({ biz = defaultBiz }: { biz?: Biz }) {
             text={text}
           />
           {biz.preview ? (
-            <p className="mt-10 max-w-xl text-muted">
+            <ClauseMark className="mt-10 max-w-xl text-muted">
               {L(
                 biz,
                 "One rule: every client knows what we’re doing, why, and what it will cost, before we do it.",
                 "Jedno pravilo: svaki klijent zna šta radimo, zašto i koliko će koštati, pre nego što počnemo.",
               )}
-            </p>
+            </ClauseMark>
           ) : (
-            <p className="mt-10 max-w-xl text-muted">
+            <ClauseMark className="mt-10 max-w-xl text-muted">
               Three partners, two paralegals and one rule: every client knows what we&rsquo;re doing, why, and what it will cost
               <Footnote n={1}>Flat fees for most planning and business work; written estimates for everything else. See the fees page.</Footnote>, before we
               do it.
-            </p>
+            </ClauseMark>
           )}
         </div>
       </div>

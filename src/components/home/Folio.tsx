@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import clsx from "clsx";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
-import { useIdleGSAP } from "@/lib/useIdleGSAP";
+import { revealOnScroll, useIdleGSAP } from "@/lib/useIdleGSAP";
 import { photos, type PhotoKey } from "@/content/photos";
 
 type Plate = { photo: PhotoKey; caption: string; alt: string; size: "tall" | "wide" | "square"; offset?: string };
@@ -18,6 +18,9 @@ const plates: Plate[] = [
   { photo: "library-reader", caption: "Reading everything, including the fine print", alt: "A person reading at a desk beside bookshelves", size: "square" },
 ];
 
+// GSAP folds the tag's CSS `rotate` into its own transform, so it animates to that tilt itself
+const tilt = (tag: HTMLElement) => Number(tag.dataset.tilt);
+
 const sizeCls = {
   tall: "w-[62vw] sm:w-[40vw] lg:w-[24vw] aspect-[3/4]",
   wide: "w-[80vw] sm:w-[60vw] lg:w-[40vw] aspect-[4/3]",
@@ -28,6 +31,8 @@ const sizeCls = {
  * "In figures": a pinned horizontal folio of photographs with plate
  * captions. Vertical scroll drives the horizontal track on desktop; each
  * plate's photo drifts against the track for depth. Phones swipe natively.
+ * Each plate is entered into the record as it arrives: a paper exhibit tag
+ * (Exhibit A, B, C…) is pressed onto its corner, as on evidence in a file.
  */
 export function Folio() {
   const root = useRef<HTMLElement>(null);
@@ -55,6 +60,23 @@ export function Folio() {
             { clipPath: "inset(0% 0% 0% 0%)", ease: "expo.out", duration: 1.6, scrollTrigger: { trigger: plate, containerAnimation: tween, start: "left 95%", toggleActions: "play none none none" } },
           );
         });
+        t.querySelectorAll<HTMLElement>("[data-exhibit]").forEach((tag) => {
+          gsap.fromTo(
+            tag,
+            { opacity: 0, scale: 1.5, rotation: tilt(tag) - 9 },
+            { opacity: 1, scale: 1, rotation: tilt(tag), duration: 0.55, ease: "back.out(2.2)", scrollTrigger: { trigger: tag, containerAnimation: tween, start: "left 72%", toggleActions: "play none none none" } },
+          );
+        });
+      });
+      mm.add("(max-width: 1023px)", () => {
+        const stops = Array.from(root.current!.querySelectorAll<HTMLElement>("[data-exhibit]")).map((tag) =>
+          revealOnScroll(
+            tag,
+            () => gsap.set(tag, { opacity: 0, scale: 1.5, rotation: tilt(tag) - 9 }),
+            () => gsap.to(tag, { opacity: 1, scale: 1, rotation: tilt(tag), duration: 0.55, delay: 0.25, ease: "back.out(2.2)" }),
+          ),
+        );
+        return () => stops.forEach((s) => s());
       });
       return () => mm.revert();
     },
@@ -83,12 +105,17 @@ export function Folio() {
         </div>
         {plates.map((p, i) => (
           <figure key={p.photo} className={clsx("shrink-0 snap-center", p.offset)}>
-            <div data-plate className={clsx("relative overflow-hidden", sizeCls[p.size], p.size === "tall" && "arch-sm")}>
-              <div data-plate-img className="absolute -inset-x-[10%] inset-y-0">
-                <Image src={photos[p.photo]} alt={p.alt} fill sizes="(min-width:1024px) 40vw, 80vw" className="object-cover" />
+            <div className="relative">
+              <div data-plate className={clsx("relative overflow-hidden", sizeCls[p.size], p.size === "tall" && "arch-sm")}>
+                <div data-plate-img className="absolute -inset-x-[10%] inset-y-0">
+                  <Image src={photos[p.photo]} alt={p.alt} fill sizes="(min-width:1024px) 40vw, 80vw" className="object-cover" />
+                </div>
               </div>
+              <span data-exhibit data-tilt={i % 2 ? 3 : -4} aria-hidden className="exhibit-tag t-caps-sm" style={{ rotate: `${i % 2 ? 3 : -4}deg` }}>
+                <span>Exhibit</span> <span className="text-brass-deep">{"ABCDEF"[i]}</span>
+              </span>
             </div>
-            <figcaption className="mt-4 flex items-baseline gap-3 text-sm text-muted">
+            <figcaption className="mt-7 flex items-baseline gap-3 text-sm text-muted">
               <span className="t-caps-sm text-brass">Plate {["I", "II", "III", "IV", "V", "VI"][i]}</span>
               <span className="font-serif italic">{p.caption}</span>
             </figcaption>
