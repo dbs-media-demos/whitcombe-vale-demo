@@ -5,7 +5,7 @@ import { DrawRule } from "@/components/ui/Reveal";
 import { practices } from "@/content/practice";
 import { addressLine, agencyName, agencyUrl, hoursSummary, site } from "@/content/site";
 import { defaultBiz } from "@/lib/biz";
-import { DAY_NAMES, dayRange, telOf, weekFromMonday, type Biz } from "@/lib/biz-core";
+import { chaptersFor, DAY_NAMES, dayRange, telOf, weekFromMonday, type Biz } from "@/lib/biz-core";
 import { trFor } from "@/i18n/tr";
 
 const firmLinks = [
@@ -23,7 +23,7 @@ export function Footer({ biz = defaultBiz }: { biz?: Biz }) {
   const t = trFor(biz);
   const sr = biz.lang === "sr";
   // Serbian previews skip what has no Serbian equivalent (trusts)
-  const practiceList = biz.lang === "sr" ? practices.filter((p) => p.slug !== "trusts") : practices;
+  const practiceList = chaptersFor(biz, practices);
   const hoursList = biz.preview
     ? weekFromMonday(biz.hours ?? []).map((h) => ({ label: DAY_NAMES[biz.lang][h.day], value: dayRange(h, biz.lang) }))
     : hoursSummary.slice(0, 3);

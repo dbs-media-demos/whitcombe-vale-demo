@@ -8,6 +8,7 @@ import { gsap, loadGsap, prefersReducedMotion } from "@/lib/gsap";
 import { revealOnScroll } from "@/lib/useIdleGSAP";
 import type { PartId } from "@/content/practice";
 import { useBiz, useT } from "@/components/preview/BizContext";
+import { chaptersFor } from "@/lib/biz-core";
 
 const PART_ORDER: PartId[] = ["family", "legacy", "enterprise"];
 
@@ -33,7 +34,7 @@ export function PracticeIndexClient({
 }) {
   const biz = useBiz();
   const t = useT();
-  const shown = biz.lang === "sr" ? practices.filter((p) => p.slug !== "trusts") : practices;
+  const shown = chaptersFor(biz, practices);
   const root = useRef<HTMLDivElement>(null);
   const preview = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<string | null>(null);
@@ -102,7 +103,7 @@ export function PracticeIndexClient({
     return () => stops.forEach((s) => s());
   }, [fine]);
 
-  const activePractice = practices.find((p) => p.slug === active);
+  const activePractice = shown.find((p) => p.slug === active);
 
   return (
     <div ref={root} className="relative" onPointerLeave={() => setActive(null)}>

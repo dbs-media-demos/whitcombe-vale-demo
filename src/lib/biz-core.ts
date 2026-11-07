@@ -50,6 +50,10 @@ export const L = (biz: Pick<Biz, "lang">, en: string, sr: string) => (biz.lang =
 /** 4.9 → "4,9" in Serbian */
 export const num = (biz: Pick<Biz, "lang">, n: number) => (biz.lang === "sr" ? String(n).replace(".", ",") : String(n));
 
+/** The chapters a business shows: Serbian previews have no trusts, and the rest close up (numerals and pages run on, no gap). */
+export const chaptersFor = <T extends { slug: string; numeral: string; page: number }>(biz: Pick<Biz, "lang">, list: T[]): T[] =>
+  biz.lang === "sr" ? list.filter((p) => p.slug !== "trusts").map((p, i) => ({ ...p, numeral: list[i].numeral, page: list[i].page })) : list;
+
 export const DAY_NAMES: Record<Lang, string[]> = {
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
   sr: ["Nedelja", "Ponedeljak", "Utorak", "Sreda", "Četvrtak", "Petak", "Subota"],
