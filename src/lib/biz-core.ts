@@ -67,7 +67,8 @@ export function fmtHM(t: string, lang: Lang) {
 
 /** One day's hours as text: "7:30 am – 7 pm", "Open 24 hours", "Closed" (or the Serbian) */
 export function dayRange(h: DayHours, lang: Lang) {
-  if (h.open === "00:00" && h.close === "23:59") return lang === "sr" ? "Otvoreno 24 sata" : "Open 24 hours";
+  // Serbian previews state normal hours only: the Bar's rules leave no room for "non-stop"
+  if (h.open === "00:00" && h.close === "23:59") return lang === "sr" ? "Po dogovoru" : "Open 24 hours";
   if (!h.open || !h.close) return lang === "sr" ? "Zatvoreno" : "Closed";
   return `${fmtHM(h.open, lang)} – ${fmtHM(h.close, lang)}`;
 }
@@ -91,7 +92,7 @@ export function openStatus(biz: Pick<Biz, "hours" | "timezone" | "lang">, date =
   const f = (t: string) => fmtHM(t, biz.lang);
   const { day, minutes } = nowIn(biz.timezone, date);
   const today = hours[day];
-  if (today.open === "00:00" && today.close === "23:59") return { open: true, text: sr ? "Otvoreno 24 sata" : "Open 24 hours" };
+  if (today.open === "00:00" && today.close === "23:59") return sr ? null : { open: true, text: "Open 24 hours" };
   if (today.open && today.close) {
     const o = toMin(today.open);
     const c = toMin(today.close);
@@ -115,8 +116,9 @@ export function openStatus(biz: Pick<Biz, "hours" | "timezone" | "lang">, date =
 export function bizFromCrm(b: Record<string, unknown> & { address: Biz["address"] }, fallbackTz: string): Biz {
   const s = (v: unknown) => (typeof v === "string" ? v : "");
   const hours = Array.isArray(b.hours) && b.hours.length === 7 ? (b.hours as DayHours[]) : null;
+  const sr = b.lang === "sr";
   return {
-    lang: b.lang === "sr" ? "sr" : "en",
+    lang: sr ? "sr" : "en",
     name: s(b.name),
     shortName: s(b.shortName) || s(b.name),
     tagline: s(b.tagline) || null,
@@ -126,8 +128,9 @@ export function bizFromCrm(b: Record<string, unknown> & { address: Biz["address"
     address: b.address,
     timezone: s(b.timezone) || fallbackTz,
     hours,
-    hoursSummary: s(b.hoursSummary),
-    rating: (b.rating as Biz["rating"]) ?? null,
+    hoursSummary: sr && /non.?stop|24/i.test(s(b.hoursSummary)) ? "" : s(b.hoursSummary),
+    // Serbia's Bar code: no ratings or reviews on a law firm's site, whatever the CRM holds
+    rating: sr ? null : ((b.rating as Biz["rating"]) ?? null),
     preview: true,
   };
 }

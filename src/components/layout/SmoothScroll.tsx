@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import type Lenis from "lenis";
-import { gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, isPhone, loadGsap, prefersReducedMotion, PHONE_QUERY } from "@/lib/gsap";
 
 declare global {
   interface Window {
@@ -16,12 +16,20 @@ export function SmoothScroll() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // A desktop window dragged across the phone width: the two versions are wired differently, so start over
+    const mq = window.matchMedia(PHONE_QUERY);
+    const flip = () => window.location.reload();
+    mq.addEventListener("change", flip);
+    return () => mq.removeEventListener("change", flip);
+  }, []);
+
+  useEffect(() => {
     // Phones/tablets keep native momentum scrolling (better feel, zero cost), so
     // Lenis is only downloaded on desktop.
-    if (prefersReducedMotion() || window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
+    if (prefersReducedMotion() || isPhone() || window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
     let cleanup: (() => void) | undefined;
     let alive = true;
-    import("lenis").then(({ default: Lenis }) => {
+    Promise.all([import("lenis"), loadGsap()]).then(([{ default: Lenis }]) => {
       if (!alive) return;
       const lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1, touchMultiplier: 1.4, anchors: { offset: -80 } });
       window.__lenis = lenis;
@@ -44,9 +52,10 @@ export function SmoothScroll() {
   // New page: Next.js handles scroll position (top on navigation, restored on Back);
   // re-measure every trigger once the new layout settles.
   useEffect(() => {
+    if (isPhone()) return;
     window.__lenis?.resize();
     // Scroll effects are created when the browser is idle (useIdleGSAP), so measure again once they exist.
-    const ids = [350, 2400].map((t) => window.setTimeout(() => ScrollTrigger.refresh(), t));
+    const ids = [350, 2400].map((t) => window.setTimeout(() => ScrollTrigger?.refresh(), t));
     return () => ids.forEach((id) => window.clearTimeout(id));
   }, [pathname]);
 

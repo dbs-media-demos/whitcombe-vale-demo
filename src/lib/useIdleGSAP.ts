@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type RefObject } from "react";
-import { useGSAP } from "@/lib/gsap";
+import { gsap, isPhone, loadGsap } from "@/lib/gsap";
 
 /*
  * Below-the-fold scroll effects don't need to exist during the first second.
@@ -27,24 +27,47 @@ function enqueue(job: () => void) {
   ric(() => pump(), { timeout: 1600 });
 }
 
-/**
- * Like useGSAP, but the setup runs from the idle queue instead of during
- * hydration. Everything created inside is recorded in the component's GSAP
- * context and reverted on unmount.
- */
-export function useIdleGSAP(setup: () => void | (() => void), scope: RefObject<Element | null>) {
-  const { context } = useGSAP({ scope });
+/** Desktop animation wiring that runs as soon as GSAP has loaded. Phones skip it: they get the stacked page. */
+export function useDeskGSAP(setup: () => void | (() => void), scope: RefObject<Element | null>) {
   useEffect(() => {
+    if (isPhone()) return;
     let cancelled = false;
-    enqueue(() => {
-      if (!cancelled) context.add(setup);
+    let ctx: { revert: () => void } | undefined;
+    loadGsap().then(() => {
+      if (!cancelled) ctx = gsap.context(setup, scope.current ?? undefined);
     });
     return () => {
       cancelled = true;
+      ctx?.revert();
     };
     // Setup is captured once, like useGSAP without dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [context]);
+  }, []);
+}
+
+/**
+ * Like useDeskGSAP, but the setup runs from the idle queue instead of during
+ * hydration. Everything created inside is recorded in a GSAP context and
+ * reverted on unmount.
+ */
+export function useIdleGSAP(setup: () => void | (() => void), scope: RefObject<Element | null>) {
+  useEffect(() => {
+    if (isPhone()) return;
+    let cancelled = false;
+    let ctx: { revert: () => void } | undefined;
+    loadGsap().then(() => {
+      if (cancelled) return;
+      enqueue(() => {
+        if (!cancelled) ctx = gsap.context(setup, scope.current ?? undefined);
+      });
+    });
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
+    // Setup is captured once, like useGSAP without dependencies.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
 
 /*
@@ -57,7 +80,7 @@ type Job = { hide: () => void; show: () => void; hidden: boolean };
 const jobs = new WeakMap<Element, Job>();
 let io: IntersectionObserver | null = null;
 
-export function revealOnScroll(el: Element, hide: () => void, show: () => void) {
+function watch(el: Element, hide: () => void, show: () => void) {
   io ??= new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
@@ -85,5 +108,19 @@ export function revealOnScroll(el: Element, hide: () => void, show: () => void) 
   return () => {
     io?.unobserve(el);
     jobs.delete(el);
+  };
+}
+
+/** Desktop only: on phones nothing is hidden and GSAP is never fetched (PhoneRise fades the sections in instead). */
+export function revealOnScroll(el: Element, hide: () => void, show: () => void) {
+  if (isPhone()) return () => {};
+  let live = true;
+  let stop: (() => void) | undefined;
+  loadGsap().then(() => {
+    if (live) stop = watch(el, hide, show);
+  });
+  return () => {
+    live = false;
+    stop?.();
   };
 }

@@ -73,7 +73,7 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-      <VisitSection label="Visit the office" />
+      <VisitSection label="Visit the office" n="" />
     </PageShell>
   );
 }

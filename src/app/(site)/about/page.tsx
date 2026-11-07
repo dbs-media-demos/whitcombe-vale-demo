@@ -145,7 +145,7 @@ export default function AboutPage() {
         </Marquee>
       </div>
 
-      <VisitSection label="§ 04 · Where we practise" />
+      <VisitSection n="§ 04 · " />
       <CtaBand />
     </PageShell>
   );

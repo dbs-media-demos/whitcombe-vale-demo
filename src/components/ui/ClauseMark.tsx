@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import clsx from "clsx";
-import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, isPhone, prefersReducedMotion } from "@/lib/gsap";
 import { revealOnScroll } from "@/lib/useIdleGSAP";
 
 /**
@@ -10,14 +10,14 @@ import { revealOnScroll } from "@/lib/useIdleGSAP";
  * brass highlighter runs along each line in reading order when the paragraph
  * scrolls into view. The strokes are measured from the text's real lines at
  * that moment, so they fit any language, and measured again if the width changes.
- * With reduced motion the marks are simply there.
+ * With reduced motion the marks are simply there; on phones a plain CSS highlight stands in.
  */
 export function ClauseMark({ children, className, delay = 0.4 }: { children: ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || isPhone()) return;
     let marks: HTMLSpanElement[] = [];
     let alive = true;
     let width = window.innerWidth;
@@ -81,7 +81,7 @@ export function ClauseMark({ children, className, delay = 0.4 }: { children: Rea
 
   return (
     <p ref={ref} className={clsx("relative isolate", className)}>
-      {children}
+      <span className="clause-ink">{children}</span>
     </p>
   );
 }

@@ -693,3 +693,1105 @@ img {
     transition: none;
   }
 }
+
+/* ───────────────────────── Serbian previews ───────────────────────── */
+
+/* Calm motion only: the seal is simply there, nothing pulses. */
+.sober .pulse-dot::after,
+.sober .seal-press {
+  display: none;
+}
+.sober .seal-stamp {
+  animation: none;
+}
+
+/* ─────────────────────────── phone pass ───────────────────────────
+   Below 768 px or on a touch screen (lib/gsap PHONE_QUERY). Simple, fast, still expensive-looking:
+   the desktop's pinned and scrubbed scenes become plain stacked sections with the same words.
+   Plain CSS on purpose: it sits outside Tailwind's layers, so it wins over the desktop utilities
+   without touching a single desktop style. */
+
+@font-face {
+  font-family: "WV Display";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/caslon-display-phone.woff2) format("woff2");
+}
+/* One family, two files: roman serif text shares the display file, so phones fetch two fonts in all. */
+@font-face {
+  font-family: "WV Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/caslon-display-phone.woff2) format("woff2");
+}
+@font-face {
+  font-family: "WV Serif";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/caslon-italic-phone.woff2) format("woff2");
+}
+
+@media (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) {
+  .ph-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px), (pointer: coarse) {
+  html {
+    /* Two font files: Caslon Display + Caslon Italic. Body and labels use the phone's own sans. */
+    --font-caslon-display: "WV Display", Georgia, "Times New Roman", serif !important;
+    --font-caslon-text: "WV Serif", Georgia, "Times New Roman", serif !important;
+    --font-hanken: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    --header-h: 4rem;
+    font-synthesis: none;
+  }
+
+  .ph-hide {
+    display: none !important;
+  }
+
+  body {
+    line-height: 1.55;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* ── no first-paint fades: what's on the first screen is simply there ── */
+  .anim-line > span,
+  .anim-fade,
+  .anim-rule,
+  .seal-stamp,
+  .seal-ring,
+  .pulse-dot::after {
+    animation: none !important;
+  }
+  .seal-press {
+    display: none;
+  }
+
+  /* ── type: smaller and tighter before anything gets cut ── */
+  .t-xxl {
+    font-size: clamp(2.5rem, 11vw, 4rem);
+  }
+  .t-xl {
+    font-size: clamp(2.3rem, 10vw, 3.6rem);
+  }
+  .t-lg {
+    font-size: clamp(1.95rem, 8.4vw, 3rem);
+    line-height: 1.06;
+  }
+  .t-md {
+    font-size: clamp(1.55rem, 6.4vw, 2.3rem);
+  }
+  .t-lead {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  /* Letters, captions and quotes read in the italic; roman Caslon Display stays for headings */
+  .font-serif:not(input, select, textarea) {
+    font-style: italic;
+  }
+  .t-caps-sm {
+    letter-spacing: 0.17em;
+  }
+
+  /* ── tap feedback ── */
+  a,
+  button,
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+  a,
+  button {
+    transition: transform 0.14s var(--ease-out-expo), opacity 0.14s linear, background-color 0.3s, color 0.3s;
+  }
+  a:active,
+  button:active {
+    opacity: 0.72;
+  }
+  a[class*="rounded-full"]:active,
+  button[class*="rounded-full"]:active,
+  .hero-ph-call:active {
+    opacity: 1;
+    transform: scale(0.97);
+  }
+
+  /* ── one small fade-and-rise per section, once (PhoneRise) ── */
+  [data-rise="wait"] > * {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  [data-rise="in"] > * {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.55s linear, transform 0.7s var(--ease-out-expo);
+  }
+
+  /* ── page turns: a quick fade, not a one-second wipe ── */
+  ::view-transition-old(.page),
+  ::view-transition-new(.page) {
+    animation: page-fade 0.18s linear both;
+  }
+  ::view-transition-old(.page) {
+    animation-direction: reverse;
+  }
+
+  /* ── chrome ── */
+  .header-bg {
+    background: var(--ink);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  header .t-caps-sm.text-\[0\.55rem\] {
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+  }
+  #site-menu {
+    transition-duration: 0.35s;
+  }
+  .mobile-bar {
+    display: grid;
+  }
+  .site-footer {
+    padding-top: 2.25rem;
+    padding-bottom: 1.1rem;
+  }
+  .grain {
+    opacity: 0.12;
+  }
+  /* The badge sits in the page flow, under the footer and above the bar's height: it covers nothing */
+  .demo-pill-wrap {
+    display: flex;
+    justify-content: center;
+    background: var(--ink);
+    padding: 0 0.75rem calc(4.9rem + env(safe-area-inset-bottom));
+  }
+  .demo-pill {
+    position: static;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--charcoal);
+  }
+
+  /* ── the order: what we handle, reviews, what happens next and what it costs, lawyers and credentials, contact ── */
+  .home-flow {
+    display: flex;
+    flex-direction: column;
+  }
+  .home-flow > * {
+    min-width: 0;
+    width: 100%;
+  }
+  .ph-o1 { order: 1; }
+  .ph-o2 { order: 2; }
+  .ph-o3 { order: 3; }
+  .ph-o4 { order: 4; }
+  .ph-o5 { order: 5; }
+  .ph-o6 { order: 6; }
+  .ph-o7 { order: 7; }
+  .ph-o8 { order: 8; }
+  .ph-o9 { order: 9; }
+  .ph-o10 { order: 10; }
+  .ph-o11 { order: 11; }
+  .ph-o12 { order: 12; }
+
+  .home-flow > section {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  .home-flow .sec-head {
+    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+  }
+  .home-flow .sec-head h2,
+  .home-flow .sec-head .mt-6 {
+    margin-top: 0.6rem;
+  }
+
+  /* Swipe rows: the next one half showing; a vertical swipe still scrolls the page */
+  .folio-track,
+  .guide-photos,
+  .att-row,
+  .case-row {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  /* ── first screen ── */
+  .threshold {
+    display: flex;
+    flex-direction: column;
+    height: calc(100svh - 7.6rem);
+    min-height: 33rem;
+    max-height: 56rem;
+    padding: 0;
+  }
+  .threshold .threshold-arch {
+    position: relative;
+    inset: auto;
+    order: 2;
+    flex: 1 1 0;
+    min-height: 8rem;
+    width: calc(100% - 2 * var(--gutter));
+    max-width: 30rem;
+    margin: 1rem auto 0;
+    clip-path: none;
+    border-radius: 50% 50% 0 0 / 8.5rem 8.5rem 0 0;
+  }
+  .threshold-arch img {
+    object-position: 50% 40%;
+  }
+  .threshold-fade {
+    background: linear-gradient(to top, rgba(15, 42, 34, 0.55), transparent 42%) !important;
+  }
+  .hero-ph {
+    position: relative;
+    z-index: 2;
+    order: 1;
+    padding: calc(var(--header-h) + 1.1rem) var(--gutter) 0;
+    width: 100%;
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+  .hero-ph-title {
+    font-size: clamp(2.1rem, 10.5vw, 3.4rem);
+    line-height: 1.04;
+  }
+  .hero-ph-title > * {
+    display: block;
+  }
+  .hero-ph-title > span {
+    white-space: nowrap;
+  }
+  .hero-ph-lead {
+    margin-top: 0.55rem;
+    font-size: 0.94rem;
+    line-height: 1.42;
+  }
+  .hero-ph-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 1.75rem;
+    margin-top: 0.55rem;
+    font-size: 0.86rem;
+  }
+  .hero-ph-call {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.25rem;
+    margin-top: 0.6rem;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    background: var(--brass);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 1.02rem;
+    white-space: nowrap;
+  }
+  .hero-ph-seal {
+    position: absolute;
+    /* In the arch's shoulder, wholly below the Call button whatever the number's length */
+    right: calc(var(--gutter) - 0.3rem);
+    bottom: -5.2rem;
+    width: 4.75rem;
+    border-radius: 50%;
+    background: var(--ink);
+    pointer-events: none;
+  }
+
+  /* The one touch that belongs to a law firm: the scales find their balance once, as the page opens */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-ph-seal .seal-beam {
+      transform-origin: 100px 86px;
+      animation: scales-beam 2.6s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s both;
+    }
+    .hero-ph-seal .seal-pan-l {
+      animation: scales-pan-l 2.6s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s both;
+    }
+    .hero-ph-seal .seal-pan-r {
+      animation: scales-pan-r 2.6s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s both;
+    }
+    .sober .hero-ph-seal .seal-beam,
+    .sober .hero-ph-seal .seal-pan-l,
+    .sober .hero-ph-seal .seal-pan-r {
+      animation: none;
+    }
+  }
+
+  /* ── what we handle ── */
+  .contents-sec .t-xxl {
+    font-size: clamp(2.1rem, 9vw, 3rem);
+  }
+  .contents-sec .sec-head {
+    grid-template-columns: 1fr;
+  }
+  .contents-sec .sec-head > div {
+    grid-column: auto;
+  }
+  .contents-sec .sec-head .t-lead {
+    font-size: 0.94rem;
+  }
+  .pi-part {
+    padding-top: 0.7rem;
+  }
+  .pi-part:first-child {
+    padding-top: 0;
+  }
+  .pi-part > [data-rise] {
+    padding-top: 0.5rem;
+    row-gap: 0;
+  }
+  .pi-part .t-caps {
+    font-size: 0.64rem;
+  }
+  .pi-part .t-italic {
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+  .pi-part + ol {
+    margin-top: 0.2rem;
+  }
+  .pi-link {
+    min-height: 2.9rem;
+    padding: 0.2rem 0;
+    gap: 0.6rem;
+  }
+  .pi-num {
+    width: 1.9rem;
+  }
+  .pi-title {
+    flex-shrink: 1;
+    font-size: clamp(1.25rem, 5.3vw, 2rem);
+    line-height: 1.06;
+  }
+  .pi-leader,
+  .pi-page {
+    display: none;
+  }
+  .pi-thumb {
+    width: 1.95rem;
+    height: 2.4rem;
+  }
+  .contents-sec .mt-12 {
+    margin-top: 0.5rem;
+  }
+
+  /* ── reviews: three full letters, stacked ── */
+  .reviews-band {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+  .reviews-band > .grid {
+    gap: 0.75rem;
+    padding: 0;
+  }
+  .reviews-score {
+    font-size: 3.1rem;
+    line-height: 1;
+  }
+  .reviews-band > div > .flex {
+    grid-column: auto;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.1rem;
+  }
+  .reviews-band .mt-16 {
+    margin-top: 0.9rem;
+  }
+  .reviews-band .marquee-wrap {
+    padding: 0;
+    overflow: visible;
+  }
+  .reviews-band .marquee {
+    display: block;
+    width: auto;
+    animation: none;
+  }
+  .reviews-band .marquee > [aria-hidden] {
+    display: none;
+  }
+  .reviews-band .marquee > div:first-child {
+    display: grid;
+    gap: 0.8rem;
+  }
+  .reviews-band .marquee > div:first-child > div {
+    width: auto;
+    padding: 0;
+  }
+  .reviews-band .marquee > div:first-child > div:nth-child(n + 4) {
+    display: none;
+  }
+  .reviews-band figure {
+    padding: 1rem 1.05rem 0.85rem;
+    transition: none;
+  }
+  .reviews-band blockquote {
+    margin-top: 0.45rem;
+    font-size: 0.97rem;
+    line-height: 1.36;
+  }
+  .reviews-band figcaption {
+    margin-top: 0.5rem;
+    padding-top: 0.45rem;
+    font-size: 0.82rem;
+  }
+  .reviews-band .mt-12 {
+    margin-top: 1.1rem;
+    padding: 0;
+  }
+
+  /* ── what happens next, what it costs ── */
+  .guide {
+    height: auto;
+  }
+  .guide-inner {
+    height: auto;
+    padding: 2rem var(--gutter);
+  }
+  .home-flow > .guide {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .guide-go {
+    display: none;
+  }
+  .guide-photos {
+    display: flex;
+    gap: 0.75rem;
+    margin: 1.1rem calc(-1 * var(--gutter)) 0;
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+  }
+  .guide-photos > div {
+    flex: 0 0 min(58vw, 18rem);
+    aspect-ratio: 16 / 10;
+    scroll-snap-align: start;
+  }
+  .guide-list {
+    display: block;
+    margin-top: 1.4rem;
+  }
+  .guide-list ol > * + * {
+    margin-top: 0.85rem;
+  }
+  .guide-list li {
+    grid-template-columns: 2.25rem 1fr;
+    gap: 0.8rem;
+  }
+  .guide-list li > span:first-child {
+    width: 2.25rem;
+    height: 2.25rem;
+    letter-spacing: 0.08em;
+  }
+  .guide-list [data-vline] {
+    display: none;
+  }
+  .guide-list > div[aria-hidden]:first-child {
+    left: 1.12rem;
+  }
+  .guide-list h3 {
+    font-size: 1.32rem;
+  }
+  .guide-list p {
+    margin-top: 0.2rem;
+  }
+  .guide-list .text-muted {
+    font-size: 0.9rem;
+    line-height: 1.38;
+  }
+  .guide-list .t-italic {
+    font-size: 0.84rem;
+  }
+  .guide-list .signed-stamp {
+    position: absolute;
+    right: 0.25rem;
+    bottom: -0.1rem;
+    margin: 0;
+    padding: 0.25rem 0.55rem 0.2rem 0.75rem;
+    font-size: 0.62rem;
+  }
+  .guide-list li:last-child {
+    padding-bottom: 0.2rem;
+  }
+  .cost-block {
+    margin-top: 1.25rem;
+  }
+  .cost-block h3 {
+    font-size: 1.4rem;
+  }
+  .cost-block dl > div {
+    padding: 0.42rem 0;
+    font-size: 0.86rem;
+    line-height: 1.3;
+  }
+  .cost-block .mt-4 {
+    margin-top: 0.5rem;
+  }
+
+  /* ── the tool: will or trust ── */
+  .wvt {
+    --wvt-gap: 0.65rem;
+  }
+  .wvt > div:first-child {
+    gap: 0.9rem;
+  }
+  .wvt > div:first-child [role="radiogroup"] {
+    max-width: 26rem;
+  }
+  .wvt > div:first-child > div:last-child {
+    gap: 0.9rem;
+  }
+  .wvt .t-italic {
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+  .wvt dl {
+    margin-top: 0.9rem;
+  }
+  .wvt [data-row] {
+    display: grid;
+    grid-template-columns: minmax(0, 6.6rem) minmax(0, 1fr);
+    column-gap: 0.8rem;
+    row-gap: 0.28rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+  }
+  .wvt dd[aria-hidden="true"] {
+    display: none;
+  }
+  .legal-doc {
+    width: 3.5rem;
+    height: 4.5rem;
+  }
+  .legal-doc-face {
+    padding-top: 0.5rem;
+    padding-inline: 0.15rem;
+    border-top-width: 3px;
+  }
+  .legal-doc-kicker {
+    font-size: 0.36rem;
+    letter-spacing: 0.1em;
+  }
+  .legal-doc-title {
+    margin-top: 0.15rem;
+    font-size: 0.5rem;
+  }
+  .legal-doc-seal {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+  .wvt [data-row] > dt {
+    letter-spacing: 0.12em;
+    font-size: 0.62rem;
+    line-height: 1.35;
+  }
+  .wvt [data-row] > dd:nth-of-type(2) {
+    grid-column: 2;
+  }
+  .wvt [data-row] > dd:nth-of-type(2):empty {
+    display: none;
+  }
+  .wvt [data-row] dd .t-caps-sm {
+    display: none;
+  }
+  .wvt [data-val] {
+    font-size: 1.04rem;
+    line-height: 1.18;
+    transition: opacity 0.15s linear, transform 0.15s linear;
+  }
+  .wvt.wvt-swap [data-val] {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .wvt .t-lead [data-val] {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+  .wvt > .mt-10 {
+    margin-top: 0.9rem;
+    gap: 0.5rem;
+  }
+  .legal-doc-inner {
+    transition-duration: 0.7s;
+  }
+  .wvt [class*="transition-[width]"] {
+    transition: none;
+  }
+
+  /* ── lawyers and credentials ── */
+  .team-sec .sec-head {
+    grid-template-columns: 1fr;
+  }
+  .team-sec .sec-head > div {
+    grid-column: auto;
+  }
+  .team-sec .sec-head .mt-6:not(h2) {
+    margin-top: 0.4rem;
+  }
+  .att-row {
+    display: flex;
+    gap: 0.9rem;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+  }
+  .att-row > li {
+    flex: 0 0 min(60vw, 17rem);
+    margin-top: 0;
+    scroll-snap-align: start;
+  }
+  .att-photo {
+    aspect-ratio: 5 / 4;
+  }
+  .team-sec .sec-head .text-muted {
+    font-size: 0.94rem;
+    line-height: 1.42;
+  }
+  .att-row > li .mt-6 {
+    margin-top: 0.7rem;
+  }
+  .att-row h3 {
+    margin-top: 0.3rem;
+    font-size: 1.5rem;
+  }
+  .att-row .t-italic {
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+  .att-row .mt-4 {
+    margin-top: 0.45rem;
+  }
+  .att-sign {
+    display: none;
+  }
+  .home-flow > .creds {
+    padding: 0 var(--gutter) 1.75rem;
+    border: 0;
+    background: var(--parchment);
+    color: var(--charcoal);
+    --muted: color-mix(in oklab, var(--charcoal) 70%, var(--parchment));
+  }
+  .creds .marquee-wrap {
+    overflow: visible;
+    border-top: 1px solid color-mix(in oklab, var(--charcoal) 22%, transparent);
+    padding-top: 0.9rem;
+  }
+  .creds .marquee {
+    display: block;
+    width: auto;
+    animation: none;
+  }
+  .creds .marquee > [aria-hidden] {
+    display: none;
+  }
+  .creds .marquee > div:first-child {
+    display: block;
+  }
+  .creds .marquee > div:first-child > span {
+    display: block;
+    padding: 0.2rem 0;
+    letter-spacing: 0.08em;
+    font-size: 0.6rem;
+    line-height: 1.3;
+  }
+  .creds .marquee > div:first-child > span > span {
+    display: none;
+  }
+
+  /* ── the firm ── */
+  .overture > .grid {
+    gap: 1rem;
+  }
+  .overture .t-caps {
+    font-size: 0.66rem;
+  }
+  .overture .t-caps > span:first-child,
+  .overture .t-caps > span:nth-child(2) {
+    display: none;
+  }
+  .overture-text {
+    font-size: clamp(1.32rem, 5.6vw, 2.1rem);
+    line-height: 1.16;
+  }
+  .overture .mt-10 {
+    margin-top: 0.8rem;
+  }
+  .overture .fn-mark {
+    display: none;
+  }
+  .clause-ink {
+    background: linear-gradient(transparent 56%, color-mix(in oklab, var(--brass) 30%, transparent) 56%, color-mix(in oklab, var(--brass) 30%, transparent) 94%, transparent 94%);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .overture-rule {
+    margin-top: 1.25rem;
+  }
+  .overture-stats {
+    padding-top: 1rem;
+    row-gap: 1rem;
+    column-gap: 1rem;
+  }
+  .overture-stats dd {
+    font-size: 2.3rem;
+  }
+  .overture-stats dt {
+    margin-top: 0.35rem;
+    letter-spacing: 0.1em;
+    font-size: 0.62rem;
+  }
+  .fn-note {
+    position: fixed !important;
+    left: 0.75rem !important;
+    right: 0.75rem;
+    bottom: 5.5rem !important;
+    width: auto !important;
+    transform: none !important;
+  }
+
+  /* ── client stories: a swipe row ── */
+  .case-row {
+    display: flex;
+    gap: 0.9rem;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    border-top: 0;
+  }
+  .case-row > article {
+    flex: 0 0 min(62vw, 18rem);
+    padding: 0.8rem 0 0;
+    border-top: 1px solid var(--line-strong);
+    border-left: 0;
+    scroll-snap-align: start;
+  }
+  .case-row > article > div.mt-6 {
+    margin-top: 0.5rem;
+    aspect-ratio: 5 / 2;
+  }
+  .case-row h3 {
+    margin-top: 0.6rem;
+    font-size: 1.32rem;
+  }
+  .case-row .mt-4 {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    line-height: 1.42;
+  }
+  .case-row .pt-8 {
+    padding-top: 0.6rem;
+  }
+  .case-row .text-5xl {
+    font-size: 2.1rem;
+  }
+  .casebook-sec .sec-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .casebook-sec .sec-head > a {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+  }
+  .casebook-sec .t-italic.mt-4 {
+    margin-top: 0.8rem;
+    padding-top: 0.6rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  /* ── photographs: a swipe row ── */
+  .folio {
+    height: auto;
+  }
+  .home-flow > .folio {
+    padding: 0;
+  }
+  .folio-track {
+    display: flex;
+    width: auto;
+    height: auto;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 2rem var(--gutter);
+    scroll-padding-inline: var(--gutter);
+  }
+  .folio-intro {
+    flex: 0 0 min(66vw, 20rem);
+    width: auto;
+    scroll-snap-align: start;
+  }
+  .folio-intro h2 {
+    margin-top: 0.6rem;
+  }
+  .folio-intro .mt-8 {
+    margin-top: 0.7rem;
+    font-size: 0.94rem;
+  }
+  .folio-keep {
+    display: none;
+  }
+  .folio-plate {
+    margin-top: 0;
+    scroll-snap-align: start;
+  }
+  .folio-plate [data-plate] {
+    width: min(58vw, 16rem);
+    aspect-ratio: 4 / 5;
+  }
+  .folio-plate [data-plate-img] {
+    inset: 0;
+  }
+  .folio-plate figcaption {
+    margin-top: 1.1rem;
+    max-width: min(58vw, 16rem);
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+  .exhibit-tag {
+    padding: 0.35rem 0.6rem 0.35rem 1.15rem;
+    bottom: -0.6rem;
+  }
+
+  /* ── contact ── */
+  .cta-band > .grid {
+    gap: 1.25rem;
+  }
+  .cta-band .t-xl {
+    font-size: clamp(2rem, 8.6vw, 3rem);
+    line-height: 1.04;
+  }
+  .cta-band .mt-6 {
+    margin-top: 0.6rem;
+  }
+  .cta-flourish {
+    display: none;
+  }
+  .short-form {
+    margin-top: 1rem;
+    gap: 0.75rem;
+  }
+  .cta-band .t-lead {
+    font-size: 0.94rem;
+    line-height: 1.42;
+  }
+  .short-form input,
+  .short-form select,
+  .short-form textarea {
+    min-height: 2.75rem;
+    padding-block: 0.3rem;
+  }
+  .cta-actions {
+    margin-top: 0.75rem;
+    gap: 0.6rem;
+  }
+  #contact-form .cta-actions {
+    display: none;
+  }
+  .cta-band .open-badge {
+    margin-top: 0.6rem;
+  }
+  .cta-photo > div {
+    aspect-ratio: 3 / 1;
+    max-width: none;
+  }
+  .kontakt-facts {
+    margin-top: 0.9rem;
+  }
+  .kontakt-facts > div {
+    padding: 0.4rem 0;
+  }
+
+  /* ── where ── */
+  .visit > .grid {
+    gap: 1.1rem;
+  }
+  .visit h2 + * {
+    margin-top: 0.6rem;
+  }
+  .visit p + .mt-10,
+  .visit .mt-10 {
+    margin-top: 0.8rem;
+  }
+  .visit p.text-muted {
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+  .visit-areas > li {
+    padding: 0.32rem 0;
+    gap: 0.75rem;
+  }
+  .visit-areas .font-serif {
+    font-family: var(--font-sans);
+    font-style: normal;
+    font-size: 0.92rem;
+    line-height: 1.25;
+  }
+  .visit-areas .text-sm {
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
+  .visit-map {
+    padding: 0.5rem;
+  }
+  .map-svg {
+    aspect-ratio: 2 / 1;
+  }
+  .visit dl {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+  }
+  .visit dl > div + div {
+    margin-top: 0.2rem;
+  }
+  .visit .mt-8 {
+    margin-top: 0.9rem;
+    gap: 1rem;
+  }
+  .visit address {
+    font-style: normal;
+  }
+
+  /* ── footer ── */
+  .site-footer > div > .grid:not(.foot-legal) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem 1rem;
+  }
+  .site-footer > div > .grid:not(.foot-legal) > div:first-child,
+  .foot-visit {
+    grid-column: 1 / -1;
+  }
+  /* Hours and the Book button live just above (and in the bar): the footer keeps the address */
+  .foot-visit dl,
+  .foot-visit .open-badge,
+  .site-footer .mt-8 {
+    display: none;
+  }
+  .foot-legal > div {
+    gap: 0.2rem;
+    text-align: left;
+  }
+  .foot-line {
+    margin-top: 0.5rem;
+    font-size: clamp(1.7rem, 7.6vw, 2.4rem);
+  }
+  .site-footer .mt-8 {
+    margin-top: 0.9rem;
+  }
+  .foot-nav ul {
+    margin-top: 0.5rem;
+  }
+  .foot-nav ul > * + * {
+    margin-top: 0;
+  }
+  .foot-nav a {
+    min-height: 1.75rem;
+    font-size: 0.9rem;
+    gap: 0.3rem;
+    align-items: center;
+  }
+  .foot-nav .w-8 {
+    width: 1.5rem;
+    letter-spacing: 0.06em;
+  }
+  .foot-visit address {
+    margin-top: 0.5rem;
+    font-size: 0.92rem;
+  }
+  .foot-visit a {
+    margin-top: 0.15rem;
+    font-size: 0.92rem;
+  }
+  .foot-visit .mt-4 {
+    margin-top: 0.35rem;
+  }
+  .foot-rule,
+  .foot-mark {
+    display: none;
+  }
+  .foot-legal {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    gap: 0.5rem;
+    font-size: 0.74rem;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 767px) {
+  header .relative.flex.h-\[var\(--header-h\)\] {
+    gap: 0.5rem;
+  }
+}
+
+/* The smallest phones: the wordmark gives way so the menu button stays on screen */
+@media (max-width: 359px) {
+  header a .text-\[0\.8rem\] {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+  }
+  header a .t-caps-sm.text-\[0\.55rem\] {
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+  }
+  header a svg {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+  header a > span:first-child {
+    gap: 0.5rem;
+  }
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scales-beam {
+  0% { transform: rotate(-9deg); }
+  28% { transform: rotate(6deg); }
+  52% { transform: rotate(-3.2deg); }
+  74% { transform: rotate(1.2deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes scales-pan-l {
+  0% { transform: translate(-30px, 0) rotate(9deg); }
+  28% { transform: translate(-30px, 0) rotate(-6deg); }
+  52% { transform: translate(-30px, 0) rotate(3.2deg); }
+  74% { transform: translate(-30px, 0) rotate(-1.2deg); }
+  100% { transform: translate(-30px, 0) rotate(0deg); }
+}
+@keyframes scales-pan-r {
+  0% { transform: translate(30px, 0) rotate(9deg); }
+  28% { transform: translate(30px, 0) rotate(-6deg); }
+  52% { transform: translate(30px, 0) rotate(3.2deg); }
+  74% { transform: translate(30px, 0) rotate(-1.2deg); }
+  100% { transform: translate(30px, 0) rotate(0deg); }
+}

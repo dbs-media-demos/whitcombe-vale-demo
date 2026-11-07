@@ -124,7 +124,7 @@ function startLight(el: HTMLCanvasElement, fail: () => void): (() => void) | und
     mouse.x += (mouse.tx - mouse.x) * 0.03;
     gl.uniform1f(uTime, seed + t);
     gl.uniform2f(uMouse, mouse.x, 0.5);
-    gl.uniform1f(uIntro, Math.min(1, t / 2.5) ** 2);
+    gl.uniform1f(uIntro, Math.min(1, t / 1.4) ** 2);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
   raf = requestAnimationFrame(frame);

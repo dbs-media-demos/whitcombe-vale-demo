@@ -27,7 +27,7 @@ export function Footnote({ n, children }: { n: number | string; children: ReactN
       <span
         id={id}
         role="note"
-        className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 block w-[min(18rem,78vw)] border-t-2 border-oxblood bg-parchment px-4 py-3 text-left font-serif text-[0.88rem] italic leading-snug text-charcoal shadow-[0_18px_40px_-20px_rgba(0,0,0,.5)] transition-[opacity,transform] duration-500 ease-[var(--ease-out-expo)]"
+        className="fn-note pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 block w-[min(18rem,78vw)] border-t-2 border-oxblood bg-parchment px-4 py-3 text-left font-serif text-[0.88rem] italic leading-snug text-charcoal shadow-[0_18px_40px_-20px_rgba(0,0,0,.5)] transition-[opacity,transform] duration-500 ease-[var(--ease-out-expo)]"
         style={{ opacity: open ? 1 : 0, transform: `translate(-50%, ${open ? 0 : 6}px)` }}
       >
         <span className="font-sans text-[0.6rem] font-semibold not-italic tracking-[0.2em] text-oxblood">NOTE {n} · </span>

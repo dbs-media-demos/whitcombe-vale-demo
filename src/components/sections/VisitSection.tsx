@@ -4,19 +4,22 @@ import { Reveal } from "@/components/ui/Reveal";
 import { counties, hoursSummary, serviceAreas, site } from "@/content/site";
 
 /** Service area: the engraved map, neighbourhoods served, hours with a live badge. */
-export function VisitSection({ label = "§ 09 · Where we practise" }: { label?: string }) {
+export function VisitSection({ label = "Where we practise", n = "§ 09 · " }: { label?: string; n?: string }) {
   return (
-    <section aria-labelledby="visit-title" className="theme-paper px-[var(--gutter)] py-28 md:py-36">
+    <section aria-labelledby="visit-title" className="visit ph-o12 theme-paper px-[var(--gutter)] py-28 md:py-36">
       <div className="grid gap-16 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <p className="t-caps-sm text-accent">{label}</p>
+          <p className="t-caps-sm text-accent">
+            <span className="ph-hide">{n}</span>
+            {label}
+          </p>
           <h2 id="visit-title" className="t-display t-lg mt-5">
             Dallas, and the <em className="t-italic text-accent">neighbourhoods</em> around it.
           </h2>
           <p className="mt-6 max-w-md text-muted">
             We meet clients in our Arts District office, by video anywhere in Texas, and appear regularly in {counties.slice(0, 3).join(", ")} courts.
           </p>
-          <Reveal as="ul" stagger={0.05} className="mt-10 border-t border-line">
+          <Reveal as="ul" stagger={0.05} className="visit-areas mt-10 border-t border-line">
             {serviceAreas.map((a) => (
               <li key={a.name} className="flex items-baseline justify-between gap-4 border-b border-line py-3.5">
                 <span className="font-serif text-[1.05rem]">{a.name}</span>
@@ -26,7 +29,7 @@ export function VisitSection({ label = "§ 09 · Where we practise" }: { label?:
           </Reveal>
         </div>
         <div className="lg:col-span-7">
-          <div className="border border-line bg-surface/50 p-4 sm:p-8">
+          <div className="visit-map border border-line bg-surface/50 p-4 sm:p-8">
             <DallasMap />
           </div>
           <div className="mt-8 grid gap-8 sm:grid-cols-2">

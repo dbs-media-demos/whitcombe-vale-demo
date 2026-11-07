@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties, type ElementType, type ReactNode } from "react";
 import clsx from "clsx";
-import { gsap, ScrollTrigger, loadSplitText, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, loadSplitText, prefersReducedMotion } from "@/lib/gsap";
 import { revealOnScroll, useIdleGSAP } from "@/lib/useIdleGSAP";
 
 /*
@@ -196,4 +196,3 @@ export function Parallax({
   );
 }
 
-export { ScrollTrigger };

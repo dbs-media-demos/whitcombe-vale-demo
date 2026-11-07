@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { gsap, useGSAP, isTouch, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, isTouch, prefersReducedMotion } from "@/lib/gsap";
+import { useDeskGSAP } from "@/lib/useIdleGSAP";
 
 /** Pulls its child toward the pointer while hovered, then springs back. */
 export function Magnetic({ children, strength = 0.35, className }: { children: ReactNode; strength?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  useGSAP(
+  useDeskGSAP(
     () => {
       const el = ref.current;
       if (!el || isTouch() || prefersReducedMotion()) return;
@@ -29,7 +30,7 @@ export function Magnetic({ children, strength = 0.35, className }: { children: R
         el.removeEventListener("pointerleave", leave);
       };
     },
-    { scope: ref },
+    ref,
   );
 
   return (

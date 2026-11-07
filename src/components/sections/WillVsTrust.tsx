@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, isPhone, prefersReducedMotion } from "@/lib/gsap";
 import { revealOnScroll } from "@/lib/useIdleGSAP";
+import { useT } from "@/components/preview/BizContext";
 
 type Doc = "will" | "trust";
 type Row = { label: string; will: string; trust: string; meter?: { will: number; trust: number; low: string; high: string } };
@@ -57,6 +58,7 @@ const verdict: Record<Doc, { line: string; href: string; cta: string }> = {
  * over from "Last Will and Testament" to "Living Trust Agreement".
  */
 export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string }) {
+  const t = useT();
   const root = useRef<HTMLDivElement>(null);
   const [doc, setDoc] = useState<Doc>("will");
   const [shown, setShown] = useState<Doc>("will");
@@ -68,8 +70,18 @@ export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string })
     if (next === doc || busy.current) return;
     setDoc(next);
     const values = root.current!.querySelectorAll("[data-val]");
-    if (prefersReducedMotion()) {
+    if (prefersReducedMotion() || !gsap && !isPhone()) {
       setShown(next);
+      return;
+    }
+    // Phones: the answers dip and return with CSS (see .wvt-swap)
+    if (isPhone()) {
+      const el = root.current!;
+      el.classList.add("wvt-swap");
+      window.setTimeout(() => {
+        setShown(next);
+        el.classList.remove("wvt-swap");
+      }, 150);
       return;
     }
     busy.current = true;
@@ -109,7 +121,7 @@ export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string })
   };
 
   return (
-    <div ref={root}>
+    <div ref={root} className="wvt">
       <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
         <div role="radiogroup" aria-labelledby={headingId} onKeyDown={onKey} className="relative inline-grid w-full max-w-md grid-cols-2 rounded-full border border-line-strong p-1.5 sm:w-auto">
           <span
@@ -150,7 +162,7 @@ export function WillVsTrust({ headingId = "wvt-title" }: { headingId?: string })
               </div>
             </div>
           </div>
-          <p className="t-italic max-w-sm text-muted">Tap to compare. Every Texas family is different; this is the general picture, not advice for yours.</p>
+          <p className="t-italic max-w-sm text-muted">{t("Tap to compare. Every Texas family is different; this is the general picture, not advice for yours.")}</p>
         </div>
       </div>
 

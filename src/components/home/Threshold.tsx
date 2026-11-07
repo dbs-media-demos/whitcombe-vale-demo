@@ -1,20 +1,25 @@
 "use client";
 
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
-import { useRef, type CSSProperties } from "react";
-import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { gsap, isPhone, prefersReducedMotion, PHONE_QUERY } from "@/lib/gsap";
+import { useDeskGSAP } from "@/lib/useIdleGSAP";
 import dynamic from "next/dynamic";
-import { photos } from "@/content/photos";
+import marbleHall from "@/assets/photos/marble-hall.jpg";
+import heroPhone from "@/assets/photos/hero-phone.jpg";
 import { site } from "@/content/site";
-import { useBiz } from "@/components/preview/BizContext";
-import { L } from "@/lib/biz-core";
+import { useBiz, useT } from "@/components/preview/BizContext";
+import { L, num, telOf } from "@/lib/biz-core";
 import { HeroSeal } from "@/components/home/HeroSeal";
+import { Phone, Stars } from "@/components/ui/Icons";
 
-// The shader only starts when the browser is idle anyway, so its code loads after hydration.
+// The shader only starts when the browser is idle anyway, so its code loads after hydration. Desktop only.
 const WindowLight = dynamic(() => import("@/components/fx/WindowLight").then((m) => m.WindowLight), { ssr: false });
 
 const d = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
+
+const PHONE_SIZES = "(min-width: 768px) 28rem, 90vw";
 
 /**
  * "The Threshold". The opening is a tall arched window cut out of the dark
@@ -22,71 +27,134 @@ const d = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
  * arch opens to full-bleed: you walk through the door into the firm.
  *
  * Intro is CSS-only (the arch rises from a sliver, headline lines lift),
- * so first paint and LCP never wait for JavaScript.
+ * so first paint and LCP never wait for JavaScript. Everything has landed by about 1.5 s.
+ *
+ * On phones (below 768 px or touch) it is a plain first screen: practice areas and town in the
+ * headline, the Google rating, a Call button with the number and a still of the window, drawn
+ * at once, with the next section peeking in below it.
  */
 export function Threshold() {
   const biz = useBiz();
+  const t = useT();
   const sr = biz.lang === "sr";
   const root = useRef<HTMLElement>(null);
+  const spacer = useRef<HTMLDivElement>(null);
+  const tel = telOf(biz);
+  const [desk, setDesk] = useState(false);
 
-  useGSAP(
-    () => {
-      const el = root.current;
-      if (!el || prefersReducedMotion()) return;
-      const mm = gsap.matchMedia();
-      mm.add({ desktop: "(min-width: 768px)", mobile: "(max-width: 767px)" }, (ctx) => {
-        const desktop = ctx.conditions?.desktop;
-        const archTo = desktop ? "inset(15vh 36vw 0vh 36vw round 14vw 14vw 0vw 0vw)" : "inset(24vh 12vw 0vh 12vw round 38vw 38vw 0vw 0vw)";
-        const full = "inset(0vh 0vw 0vh 0vw round 0vw 0vw 0vw 0vw)";
-        const tl = gsap.timeline({
-          defaults: { ease: "none" },
-          scrollTrigger: { trigger: el, start: "top top", end: desktop ? "+=110%" : "+=70%", scrub: 0.9, pin: true, anticipatePin: 1 },
-        });
-        tl.fromTo("[data-arch]", { clipPath: archTo }, { clipPath: full, duration: 1 }, 0)
-          .fromTo("[data-arch-img]", { scale: 1.18 }, { scale: 1, duration: 1 }, 0)
-          .fromTo("[data-shade]", { opacity: 0.1 }, { opacity: 0.55, duration: 1 }, 0)
-          .to("[data-line='1']", { xPercent: desktop ? -18 : -8, opacity: 0, duration: 0.7 }, 0)
-          .to("[data-line='2']", { xPercent: desktop ? 18 : 8, opacity: 0, duration: 0.7 }, 0)
-          .to("[data-hero-meta]", { opacity: 0, y: -20, duration: 0.4 }, 0)
-          .to("[data-seal]", { opacity: 0, scale: 0.9, duration: 0.3 }, 0.5)
-          .fromTo("[data-inside]", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, 0.55);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- media queries are only known on the client
+  useEffect(() => setDesk(!isPhone()), []);
+
+  useDeskGSAP(() => {
+    const el = root.current;
+    if (!el || prefersReducedMotion()) return;
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      const archTo = "inset(15vh 36vw 0vh 36vw round 14vw 14vw 0vw 0vw)";
+      const full = "inset(0vh 0vw 0vh 0vw round 0vw 0vw 0vw 0vw)";
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        // Our own spacer: GSAP's would pull the section out of the page and back on every refresh, and
+        // moving it restarts the CSS intro inside (which kept the opening near empty for seconds)
+        scrollTrigger: { trigger: el, start: "top top", end: "+=110%", scrub: 0.9, pin: true, pinSpacer: spacer.current, anticipatePin: 1 },
       });
-      return () => mm.revert();
-    },
-    { scope: root },
-  );
+      tl.fromTo("[data-arch]", { clipPath: archTo }, { clipPath: full, duration: 1 }, 0)
+        .fromTo("[data-arch-img]", { scale: 1.18 }, { scale: 1, duration: 1 }, 0)
+        .fromTo("[data-shade]", { opacity: 0.1 }, { opacity: 0.55, duration: 1 }, 0)
+        .to("[data-line='1']", { xPercent: -18, opacity: 0, duration: 0.7 }, 0)
+        .to("[data-line='2']", { xPercent: 18, opacity: 0, duration: 0.7 }, 0)
+        .to("[data-hero-meta]", { opacity: 0, y: -20, duration: 0.4 }, 0)
+        .to("[data-seal]", { opacity: 0, scale: 0.9, duration: 0.3 }, 0.5)
+        .fromTo("[data-inside]", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, 0.55);
+    });
+    return () => mm.revert();
+  }, root);
+
+  const { props: deskImg } = getImageProps({
+    src: marbleHall,
+    alt: t("A long colonnade of stone columns receding towards a bright doorway"),
+    fill: true,
+    fetchPriority: "high",
+    loading: "eager",
+    quality: 60,
+    sizes: "100vw",
+    className: "object-cover object-[50%_60%]",
+  });
+  const {
+    props: { srcSet: phoneSet },
+  } = getImageProps({ src: heroPhone, alt: "", fill: true, quality: 75, sizes: PHONE_SIZES });
 
   return (
-    <section ref={root} aria-labelledby="hero-title" className="theme-ink relative h-[100svh] min-h-[620px] overflow-hidden">
+    <div ref={spacer} className="ph-o1">
+    <section ref={root} aria-labelledby="hero-title" className="threshold theme-ink relative h-[100svh] min-h-[620px] overflow-hidden">
       {/* The window: a full-bleed photo clipped to an arch */}
       <div data-arch className="threshold-arch absolute inset-0 overflow-hidden">
-        <Image
-          data-arch-img
-          src={photos["marble-hall"]}
-          alt="A long colonnade of stone columns receding towards a bright doorway"
-          fill
-          fetchPriority="high"
-          loading="eager"
-          quality={60}
-          sizes="100vw"
-          className="object-cover object-[50%_60%]"
-        />
+        <picture>
+          <source media={PHONE_QUERY} srcSet={phoneSet} sizes={PHONE_SIZES} />
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- getImageProps supplies src and alt; <picture> gives phones their own crop */}
+          <img data-arch-img {...deskImg} />
+        </picture>
         <div data-shade className="absolute inset-0 bg-ink opacity-10" />
-        <WindowLight className="opacity-80" />
+        {desk && <WindowLight className="opacity-80" />}
         {/* Intro: an ink curtain retracts upward, so the window seems to rise from the floor.
             It only covers the photo (never clips it), so the LCP image paints on the first frame. */}
-        <div aria-hidden className="threshold-curtain absolute inset-0 origin-top bg-ink" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(15,42,34,.92),rgba(15,42,34,.2)_40%,transparent_60%)] sm:bg-[linear-gradient(to_top,rgba(15,42,34,.7),transparent_35%)]" />
+        <div aria-hidden className="threshold-curtain ph-hide absolute inset-0 origin-top bg-ink" />
+        <div className="threshold-fade absolute inset-0 bg-[linear-gradient(to_top,rgba(15,42,34,.92),rgba(15,42,34,.2)_40%,transparent_60%)] sm:bg-[linear-gradient(to_top,rgba(15,42,34,.7),transparent_35%)]" />
       </div>
 
       {/* Hairline frame lines, like a page's margins */}
       <div aria-hidden className="pointer-events-none absolute inset-x-[var(--gutter)] top-[calc(var(--header-h)+0.5rem)] h-px bg-line">
-        <div className="anim-rule h-full bg-brass/60" style={d(0.4)} />
+        <div className="anim-rule h-full bg-brass/60" style={d(0.15)} />
       </div>
 
-      <div className="relative flex h-full flex-col justify-between px-[var(--gutter)] pb-20 pt-[calc(var(--header-h)+1.75rem)] max-md:pb-28">
-        <div data-hero-meta className="anim-fade flex items-start justify-between gap-6" style={d(0.6)}>
-          <p className="t-caps-sm max-w-[20rem] text-muted">Family · Estate · Business law</p>
+      {/* Phones: the first screen */}
+      <div className="hero-ph ph-only">
+        <h1 className="hero-ph-title t-display">
+          {sr ? (
+            <>
+              <span>Porodično, nasledno</span>
+              <span>i privredno pravo</span>
+              {biz.area && <em className="t-italic text-brass-light">{biz.area}</em>}
+            </>
+          ) : (
+            <>
+              <span>Family, estate</span>
+              <span>&amp; business lawyers</span>
+              {biz.area && <em className="t-italic text-brass-light">in {biz.area}.</em>}
+            </>
+          )}
+        </h1>
+        <p className="hero-ph-lead text-fg/85">
+          {sr
+            ? biz.name
+            : biz.preview
+              ? "A boutique firm for divorce and custody, wills and trusts, and the business you’re building."
+              : "A boutique Dallas firm for divorce and custody, wills and trusts, and the business you’re building."}
+        </p>
+        {biz.rating && (
+          <a href="#reviews-title" className="hero-ph-rating">
+            <Stars value={biz.rating.value} className="text-brass" />
+            <span>
+              <strong className="font-semibold">{num(biz, biz.rating.value)}</strong> · {biz.rating.count} Google reviews
+            </span>
+          </a>
+        )}
+        {tel ? (
+          <a href={tel} className="hero-ph-call">
+            <Phone className="h-[1.1rem] w-[1.1rem]" />
+            {L(biz, "Call", "Pozovite")} {biz.phoneDisplay}
+          </a>
+        ) : (
+          <a href={sr ? "#kontakt" : "#contact-form"} className="hero-ph-call">
+            {L(biz, "Book a free call", "Kontakt")}
+          </a>
+        )}
+        <HeroSeal still className="hero-ph-seal" />
+      </div>
+
+      <div className="threshold-desk ph-hide relative flex h-full flex-col justify-between px-[var(--gutter)] pb-20 pt-[calc(var(--header-h)+1.75rem)] max-md:pb-28">
+        <div data-hero-meta className="anim-fade flex items-start justify-between gap-6" style={d(0.3)}>
+          <p className="t-caps-sm max-w-[20rem] text-muted">{t("Family · Estate · Business law")}</p>
           <p className="t-caps-sm hidden text-right text-muted sm:block">
             {biz.preview ? (
               biz.area
@@ -101,58 +169,58 @@ export function Threshold() {
         </div>
 
         <div className="relative z-10 text-[clamp(3.2rem,min(9vw,15vh),10rem)]">
-        {/* Stamped beside the headline: at the crown of the arch on phones, in the hollow below line one on larger screens */}
-        <div data-seal className="absolute inset-x-0 bottom-full mx-auto mb-[4vh] w-[7rem] md:bottom-auto md:left-[0.04em] md:right-auto md:top-[1.02em] md:mx-0 md:mb-0 md:w-[1.8em]">
-          <HeroSeal />
-        </div>
-        <h1 id="hero-title" className="t-display leading-[0.9]">
-          <span data-line="1" className="anim-line">
-            <span style={d(0.25)}>{sr ? "Diskretan savet" : "Quiet counsel"}</span>
-          </span>
-          <span data-line="2" className="anim-line text-right">
-            <span style={d(0.42)}>
-              {sr ? "za " : "for life’s "}
-              <em className="t-italic text-brass-light">{sr ? "presudne" : "defining"}</em>
+          {/* Stamped beside the headline: at the crown of the arch on phones, in the hollow below line one on larger screens */}
+          <div data-seal className="absolute inset-x-0 bottom-full mx-auto mb-[4vh] w-[7rem] md:bottom-auto md:left-[0.04em] md:right-auto md:top-[1.02em] md:mx-0 md:mb-0 md:w-[1.8em]">
+            <HeroSeal />
+          </div>
+          <h1 id="hero-title" className="t-display leading-[0.9]">
+            <span data-line="1" className="anim-line">
+              <span style={d(0.1)}>{sr ? "Porodično, nasledno" : "Quiet counsel"}</span>
             </span>
-          </span>
-          <span data-line="2" className="anim-line text-right">
-            <span style={d(0.58)}>
-              <em className="t-italic text-brass-light">{sr ? "trenutke." : "chapters."}</em>
+            <span data-line="2" className="anim-line text-right">
+              <span style={d(0.18)}>
+                {sr ? "i " : "for life’s "}
+                <em className="t-italic text-brass-light">{sr ? "privredno" : "defining"}</em>
+              </span>
             </span>
-          </span>
-        </h1>
+            <span data-line="2" className="anim-line text-right">
+              <span style={d(0.26)}>
+                <em className="t-italic text-brass-light">{sr ? "pravo." : "chapters."}</em>
+              </span>
+            </span>
+          </h1>
         </div>
 
-        <div data-hero-meta className="anim-fade flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" style={d(0.9)}>
+        <div data-hero-meta className="anim-fade flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" style={d(0.42)}>
           <p className="t-lead max-w-md text-[1.2rem] text-fg/85 max-sm:hidden">
             {biz.preview
               ? L(
                   biz,
                   "A boutique firm for divorce and custody, wills and trusts, and the business you’re building. Discreet, direct and on your side.",
-                  "Advokatska kancelarija za razvod i decu, testamente i nasleđe, i posao koji gradite. Diskretno, direktno i na vašoj strani.",
+                  `${biz.name}. Porodično, nasledno i privredno pravo${biz.area ? `, ${biz.area}` : ""}.`,
                 )
               : "A boutique Dallas firm for divorce and custody, wills and trusts, and the business you’re building. Discreet, direct and on your side."}
           </p>
           <div className="flex items-center gap-5">
             <Link
-              href="/consultation"
+              href={sr ? "#kontakt" : "/consultation"}
               className="group relative inline-flex min-h-12 items-center overflow-hidden rounded-full bg-brass px-6 font-medium text-ink"
             >
               <span aria-hidden className="absolute inset-0 origin-bottom scale-y-0 bg-parchment transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-y-100" />
-              <span className="relative">Book a free 15-minute call</span>
+              <span className="relative">{sr ? "Kontakt" : "Book a free 15-minute call"}</span>
             </Link>
             <span aria-hidden className="hidden items-center gap-3 md:flex">
               <span className="relative block h-12 w-px overflow-hidden bg-line">
                 <span className="scroll-cue absolute inset-x-0 top-0 h-1/2 bg-brass" />
               </span>
-              <span className="t-caps-sm text-muted">Scroll</span>
+              <span className="t-caps-sm text-muted">{t("Scroll")}</span>
             </span>
           </div>
         </div>
       </div>
 
       {/* Revealed once the arch has opened */}
-      <div data-inside aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0">
+      <div data-inside aria-hidden className="ph-hide pointer-events-none absolute inset-0 flex items-center justify-center opacity-0">
         <p className="t-display px-6 text-center text-[clamp(2.4rem,6vw,6rem)] leading-none">
           {sr ? (
             <em className="t-italic text-brass-light">Izvolite.</em>
@@ -169,20 +237,18 @@ export function Threshold() {
           --arch-to: inset(15vh 36vw 0vh 36vw round 14vw 14vw 0vw 0vw);
           clip-path: var(--arch-to);
         }
-        @media (max-width: 767px) {
-          .threshold-arch {
-            --arch-to: inset(24vh 12vw 0vh 12vw round 38vw 38vw 0vw 0vw);
-          }
-        }
-        .threshold-curtain { transform: scaleY(0); animation: curtain 2s var(--ease-in-out-quart) 0.15s backwards; }
+        .threshold-curtain { transform: scaleY(0); animation: curtain 1.05s var(--ease-in-out-quart) 0.05s backwards; }
         @keyframes curtain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
-        .seal-stamp { animation: seal-stamp 0.9s cubic-bezier(.3,0,.2,1) 1.05s backwards; }
+        .threshold .anim-line > span { animation-duration: 0.9s; }
+        .threshold .anim-fade { animation-duration: 0.75s; }
+        .threshold .anim-rule { animation-duration: 1s; }
+        .seal-stamp { animation: seal-stamp 0.6s cubic-bezier(.3,0,.2,1) 0.55s backwards; }
         @keyframes seal-stamp {
           0% { opacity: 0; transform: scale(1.5) rotate(-18deg); filter: blur(6px); }
           70% { opacity: 1; transform: scale(0.965) rotate(0deg); filter: blur(0); }
           100% { opacity: 1; transform: none; }
         }
-        .seal-press { opacity: 0; animation: seal-press 1.3s var(--ease-out-expo) 1.68s; }
+        .seal-press { opacity: 0; animation: seal-press 0.8s var(--ease-out-expo) 0.95s; }
         @keyframes seal-press { from { opacity: 0.9; transform: scale(0.98); } to { opacity: 0; transform: scale(1.45); } }
         .seal-ring { transform-box: view-box; transform-origin: 100px 100px; animation: seal-turn 120s linear infinite; }
         @keyframes seal-turn { to { transform: rotate(360deg); } }
@@ -190,5 +256,6 @@ export function Threshold() {
         @keyframes cue { from { transform: translateY(-100%); } to { transform: translateY(200%); } }
       `}</style>
     </section>
+    </div>
   );
 }

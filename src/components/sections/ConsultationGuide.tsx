@@ -1,21 +1,24 @@
 "use client";
 
-import Image from "next/image";
-import { useRef } from "react";
+import Image, { type StaticImageData } from "next/image";
+import { useRef, type ReactNode } from "react";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
 import { revealOnScroll, useIdleGSAP } from "@/lib/useIdleGSAP";
-import { photos, type PhotoKey } from "@/content/photos";
 import { site } from "@/content/site";
-import { useBiz } from "@/components/preview/BizContext";
+import { useBiz, useT } from "@/components/preview/BizContext";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import blinds from "@/assets/photos/blinds.jpg";
+import consultMugs from "@/assets/photos/consult-mugs.jpg";
+import conferenceCity from "@/assets/photos/conference-city.jpg";
+import contractSign from "@/assets/photos/contract-sign.jpg";
 
-const baseSteps: { n: string; title: string; body: string; meta: string; photo: PhotoKey; alt: string }[] = [
+const baseSteps: { n: string; title: string; body: string; meta: string; photo: StaticImageData; alt: string }[] = [
   {
     n: "I",
     title: "Reach out",
     body: "Call {phone}, book online or write to us. We run a conflict check first, so we only ask for names, not details.",
     meta: "Reply within one business day",
-    photo: "blinds",
+    photo: blinds,
     alt: "Afternoon light falling through blinds onto a wall",
   },
   {
@@ -23,7 +26,7 @@ const baseSteps: { n: string; title: string; body: string; meta: string; photo: 
     title: "A confidential 15-minute call",
     body: "An attorney, not a call centre, listens to what's happening and tells you honestly whether we're the right firm.",
     meta: "Free · by phone or video",
-    photo: "consult-mugs",
+    photo: consultMugs,
     alt: "Two people talking across a table with coffee cups",
   },
   {
@@ -31,7 +34,7 @@ const baseSteps: { n: string; title: string; body: string; meta: string; photo: 
     title: "The strategy meeting",
     body: "Sixty minutes with the attorney who would handle your matter. You leave with your options in writing and a recommended path.",
     meta: "$350, credited to your fee",
-    photo: "conference-city",
+    photo: conferenceCity,
     alt: "A conference room with windows overlooking the city",
   },
   {
@@ -39,7 +42,7 @@ const baseSteps: { n: string; title: string; body: string; meta: string; photo: 
     title: "A clear fee agreement",
     body: "A flat fee or a written estimate, a named team and how we'll keep in touch. Nothing starts until you've read it and signed.",
     meta: "No surprises, in writing",
-    photo: "contract-sign",
+    photo: contractSign,
     alt: "A hand signing a printed agreement with a pen",
   },
 ];
@@ -59,15 +62,15 @@ const PATH = "M0 50 C 60 50 80 70 125 70 S 300 30 375 30 S 550 70 625 70 S 800 3
  * the line reaches it while the background photograph changes. On phones the
  * same line runs vertically down the list. When the pen reaches step IV, the
  * fee agreement, a "Signed" stamp lands on it: nothing starts before that.
+ * On phones it is a plain stacked list with the photographs in a swipe row and `children`
+ * ("what it costs") below; Serbian previews have no stamp and no pen line.
  */
-export function ConsultationGuide() {
+export function ConsultationGuide({ children }: { children?: ReactNode }) {
   const biz = useBiz();
-  const phone = biz.preview ? biz.phoneDisplay || (biz.lang === "sr" ? "nas" : "us") : site.phone;
-  // Step I carries the phone number, so its Serbian text is set here rather than in i18n/sr
-  const steps = baseSteps.map((s, i) => ({
-    ...s,
-    body: (i === 0 && biz.lang === "sr" ? "Pozovite {phone}, zakažite onlajn ili nam pišite. Prvo proveravamo sukob interesa, pa tražimo samo imena, ne i detalje." : s.body).replace("{phone}", phone),
-  }));
+  const t = useT();
+  const sr = biz.lang === "sr";
+  const phone = biz.preview ? biz.phoneDisplay || (sr ? "nas" : "us") : site.phone;
+  const steps = baseSteps.map((s) => ({ ...s, body: t(s.body).replace("{phone}", phone) }));
   const root = useRef<HTMLElement>(null);
 
   useIdleGSAP(
@@ -99,7 +102,7 @@ export function ConsultationGuide() {
             tl.to(bgs[i - 1], { opacity: 0, duration: 0.4 }, at - 0.1).to(bgs[i], { opacity: 1, duration: 0.4 }, at - 0.1);
           }
         });
-        tl.fromTo(
+        if (!sr) tl.fromTo(
           el.querySelector("[data-stamp-desk]"),
           { opacity: 0, scale: 1.7, rotation: -19 },
           { opacity: 1, scale: 1, rotation: -7, duration: 0.3, ease: "back.out(2)" },
@@ -114,7 +117,8 @@ export function ConsultationGuide() {
         gsap.utils.toArray<HTMLElement>("[data-step]", el).forEach((s) => {
           gsap.fromTo(s, { x: 28 }, { x: 0, ease: "none", scrollTrigger: { trigger: s, start: "top 90%", end: "top 55%", scrub: true } });
         });
-        const stamp = el.querySelector("[data-stamp-phone]")!;
+        const stamp = el.querySelector("[data-stamp-phone]");
+        if (!stamp) return;
         return revealOnScroll(
           stamp,
           () => gsap.set(stamp, { opacity: 0, scale: 1.7, rotation: -19 }),
@@ -127,32 +131,35 @@ export function ConsultationGuide() {
   );
 
   return (
-    <section ref={root} aria-labelledby="guide-title" className="theme-ink relative overflow-hidden lg:h-screen">
+    <section ref={root} aria-labelledby="guide-title" id="saradnja" className="guide ph-o4 theme-ink relative overflow-hidden lg:h-screen">
       {/* Background photographs, one per step (desktop) */}
-      <div aria-hidden className="absolute inset-0 hidden lg:block">
+      <div aria-hidden className="ph-hide absolute inset-0 hidden lg:block">
         {steps.map((s, i) => (
-          <div key={s.photo} data-bg className="absolute inset-0" style={{ opacity: i === 0 ? 1 : undefined }}>
-            <Image src={photos[s.photo]} alt="" fill sizes="100vw" className="object-cover opacity-[0.22]" />
+          <div key={s.n} data-bg className="absolute inset-0" style={{ opacity: i === 0 ? 1 : undefined }}>
+            <Image src={s.photo} alt="" fill sizes="100vw" className="object-cover opacity-[0.22]" />
           </div>
         ))}
         <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_50%,transparent,rgba(15,42,34,.9))]" />
       </div>
 
-      <div className="relative flex h-full flex-col px-[var(--gutter)] py-24 lg:py-[calc(var(--header-h)+2rem)]">
+      <div className="guide-inner relative flex h-full flex-col px-[var(--gutter)] py-24 lg:py-[calc(var(--header-h)+2rem)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="t-caps-sm text-brass">§ 04 · The first consultation</p>
+            <p className="t-caps-sm text-brass">
+              <span className="ph-hide">§ 04 · </span>
+              {t("The first consultation")}
+            </p>
             <h2 id="guide-title" className="t-display t-lg mt-5 max-w-3xl">
-              Four steps from a hard week to <em className="t-italic text-brass-light">a clear plan.</em>
+              {t("Four steps from a hard week to")} <em className="t-italic text-brass-light">{t("a clear plan.")}</em>
             </h2>
           </div>
-          <ButtonLink href="/consultation" className="self-start lg:self-auto">
-            Start with step one
+          <ButtonLink href={sr ? "#kontakt" : "/consultation"} className="guide-go self-start lg:self-auto">
+            {t("Start with step one")}
           </ButtonLink>
         </div>
 
         {/* Desktop stage: the pen line and four steps */}
-        <div className="relative mt-auto hidden h-[58vh] min-h-[420px] lg:block">
+        <div className="ph-hide relative mt-auto hidden h-[58vh] min-h-[420px] lg:block">
           <svg aria-hidden viewBox="0 0 1000 100" preserveAspectRatio="none" className="absolute inset-x-0 top-0 h-[34%] w-full overflow-visible">
             <path d={PATH} fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="1" vectorEffect="non-scaling-stroke" />
             <path data-pen d={PATH} pathLength={1} fill="none" stroke="#b08d57" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="1" strokeDashoffset="1" />
@@ -172,18 +179,18 @@ export function ConsultationGuide() {
             {steps.map((s, i) => (
               <li key={s.n} data-step className="pr-4">
                 <p data-rise className="t-caps-sm text-brass">
-                  Step {s.n}
+                  {t("Step")} {s.n}
                 </p>
                 <h3 data-rise className="t-display mt-3 text-[clamp(1.6rem,2.1vw,2.2rem)] leading-[1.05]">
-                  {s.title}
+                  {t(s.title)}
                 </h3>
                 <p data-rise className="mt-4 text-[0.95rem] leading-relaxed text-muted">
                   {s.body}
                 </p>
                 <p data-rise className="t-italic mt-4 text-sm text-brass-light">
-                  {s.meta}
+                  {t(s.meta)}
                 </p>
-                {i === steps.length - 1 && (
+                {i === steps.length - 1 && !sr && (
                   <span data-stamp-desk aria-hidden className="signed-stamp mt-5">
                     Signed
                   </span>
@@ -194,7 +201,16 @@ export function ConsultationGuide() {
         </div>
 
         {/* Phones & tablets: a vertical pen line */}
-        <div data-list className="relative mt-16 lg:hidden">
+        {/* Phones: the four photographs in one swipe row, above the stacked steps */}
+        <div className="guide-photos ph-only no-scrollbar">
+          {steps.map((s) => (
+            <div key={s.n} className="arch-sm relative overflow-hidden">
+              <Image src={s.photo} alt={t(s.alt)} fill sizes="60vw" className="object-cover" />
+            </div>
+          ))}
+        </div>
+
+        <div data-list className="guide-list relative mt-16 lg:hidden">
           <div aria-hidden className="absolute bottom-2 left-[1.35rem] top-2 w-px bg-line" />
           <div aria-hidden data-vline className="absolute bottom-2 left-[1.35rem] top-2 w-px origin-top bg-brass" />
           <ol className="space-y-14">
@@ -204,22 +220,24 @@ export function ConsultationGuide() {
                   {s.n}
                 </span>
                 <div>
-                  <h3 className="t-display text-[1.8rem] leading-[1.05]">{s.title}</h3>
+                  <h3 className="t-display text-[1.8rem] leading-[1.05]">{t(s.title)}</h3>
                   <p className="mt-3 text-muted">{s.body}</p>
-                  <p className="t-italic mt-3 text-sm text-brass-light">{s.meta}</p>
-                  {i === steps.length - 1 && (
+                  <p className="t-italic mt-3 text-sm text-brass-light">{t(s.meta)}</p>
+                  {i === steps.length - 1 && !sr && (
                     <span data-stamp-phone aria-hidden className="signed-stamp mt-6">
                       Signed
                     </span>
                   )}
-                  <div className="arch-sm relative mt-6 aspect-[4/3] w-full max-w-sm overflow-hidden">
-                    <Image src={photos[s.photo]} alt={s.alt} fill sizes="(max-width: 640px) 80vw, 384px" className="object-cover" />
+                  <div className="ph-hide arch-sm relative mt-6 aspect-[4/3] w-full max-w-sm overflow-hidden">
+                    <Image src={s.photo} alt={t(s.alt)} fill sizes="(max-width: 640px) 80vw, 384px" className="object-cover" />
                   </div>
                 </div>
               </li>
             ))}
           </ol>
         </div>
+
+        {children && <div className="ph-only">{children}</div>}
       </div>
     </section>
   );

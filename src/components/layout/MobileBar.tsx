@@ -1,21 +1,42 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 import { Phone } from "@/components/ui/Icons";
 import { useBiz } from "@/components/preview/BizContext";
-import { telOf } from "@/lib/biz-core";
+import { L, telOf } from "@/lib/biz-core";
 
-/** Sticky bottom bar on phones: call, or book the consultation. */
+/**
+ * Sticky bottom bar on phones: call, or the short form on the homepage (the wizard from inner pages).
+ * Serbian previews: Pozovite + Kontakt.
+ */
 export function MobileBar() {
   const biz = useBiz();
+  const pathname = usePathname();
+  const tel = telOf(biz);
+  const home = biz.preview || pathname === "/";
+  const cls = "mobile-bar-go flex min-h-12 items-center justify-center rounded-full bg-brass text-[0.95rem] font-medium text-ink";
   return (
-    <div className="theme-ink fixed inset-x-0 bottom-0 z-[65] grid grid-cols-2 gap-2 border-t border-line !bg-ink/95 px-3 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur md:hidden">
-      <a href={telOf(biz)} className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-line-strong text-[0.95rem]">
-        <Phone className="text-brass" /> Call
-      </a>
-      <Link href="/consultation" className="flex min-h-12 items-center justify-center rounded-full bg-brass text-[0.95rem] font-medium text-ink">
-        Book a consultation
-      </Link>
+    <div className={clsx("mobile-bar theme-ink fixed inset-x-0 bottom-0 z-[65] grid gap-2 border-t border-line !bg-ink px-3 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-2.5 md:hidden", tel ? "grid-cols-2" : "grid-cols-1")}>
+      {tel && (
+        <a href={tel} className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-line-strong text-[0.95rem]">
+          <Phone className="text-brass" /> {L(biz, "Call", "Pozovite")}
+        </a>
+      )}
+      {biz.lang === "sr" ? (
+        <a href="#kontakt" className={cls}>
+          Kontakt
+        </a>
+      ) : home ? (
+        <a href="#contact-form" className={cls}>
+          Book a free call
+        </a>
+      ) : (
+        <Link href="/consultation" className={cls}>
+          Book a consultation
+        </Link>
+      )}
     </div>
   );
 }

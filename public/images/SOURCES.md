@@ -53,3 +53,5 @@ Every file is re-graded by `scripts/grade.mjs` and lives in `src/assets/photos/`
 | portrait-sofia.jpg | https://unsplash.com/photos/jzz_3jWMzHA | Compagnons |
 | marble-hall.jpg | https://unsplash.com/photos/JrDpllqd5H8 | Luise and Nic |
 | arch-corridor.jpg | https://unsplash.com/photos/G4MS7DiBv5o | Kevin Jackson |
+
+`hero-phone.jpg` is a crop of `marble-hall.jpg`, for the phone hero's arch.

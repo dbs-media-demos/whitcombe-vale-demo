@@ -31,6 +31,9 @@ The site is **noindex by default** (robots meta + `robots.txt` disallow). Set `N
   - `WillVsTrust` (animated comparison).
 - `src/components/intake/`: the consultation wizard, contact form and wax seal.
 - `src/lib/useIdleGSAP.ts`: idle-queued scroll effects and a shared IntersectionObserver for reveals (keeps the main thread free during load).
+- `src/lib/gsap.ts`: GSAP arrives in its own chunk (`gsap-core.ts`) on desktop only. `isPhone()` is the same test as the phone block at the end of `globals.css`: below 768 px or touch.
+- Phones: `.ph-only`, `.ph-hide` and the `.ph-o*` order classes in `globals.css` give a stacked, reordered homepage; two subset fonts in `public/fonts` (`scripts/build-phone-fonts.py`) replace the desktop three.
+- `src/i18n/`: preview wording, rendered on the server through `useT()` (client) and `trFor(biz)` (server). `lang: "sr"` previews are deliberately plain: see `HomeContent`.
 - `scripts/`: photo pipeline.
   - `photos.txt` lists Unsplash IDs.
   - `grade.mjs` applies one colour grade to every photo and writes `public/images/SOURCES.md`.

@@ -18,9 +18,9 @@ export function OpenBadge({ className }: { className?: string }) {
     const id = window.setInterval(tick, 60_000);
     return () => window.clearInterval(id);
   }, [biz]);
-  if (!biz.hours) return null;
+  if (!biz.hours || (biz.lang === "sr" && !biz.hoursSummary)) return null;
   return (
-    <span className={clsx("inline-flex items-center gap-2.5", className)}>
+    <span className={clsx("open-badge inline-flex items-center gap-2.5", className)}>
       <span
         aria-hidden
         className={clsx("pulse-dot h-2 w-2 shrink-0 rounded-full", state?.open ? "bg-[#6fbf8e] text-[#6fbf8e]" : "bg-brass text-brass", !state && "opacity-0")}

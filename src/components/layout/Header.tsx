@@ -8,18 +8,30 @@ import { Logo } from "@/components/brand/Logo";
 import { Phone } from "@/components/ui/Icons";
 import { OpenBadge } from "@/components/ui/OpenBadge";
 import { nav } from "@/content/site";
-import { useBiz } from "@/components/preview/BizContext";
+import { useBiz, useT } from "@/components/preview/BizContext";
 import { telOf } from "@/lib/biz-core";
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
+
+// Serbian previews: only what the page itself holds (no results, fees or articles)
+const NAV_SR = [
+  { href: "#oblasti", label: "Oblasti prava" },
+  { href: "#saradnja", label: "Saradnja" },
+  { href: "#obrazovanje", label: "Obrazovanje i jezici" },
+  { href: "#kontakt", label: "Kontakt" },
+];
 
 /**
  * Fixed header. Transparent over each page's dark opening, then a blurred
  * ink bar once you scroll; it slips away while reading down and returns on
  * scroll up. On small screens the menu opens a full-screen table of contents.
+ * Phones: opaque once scrolled, nothing shows through.
  */
 export function Header() {
   const biz = useBiz();
+  const t = useT();
+  const sr = biz.lang === "sr";
+  const links = sr ? NAV_SR : nav;
   const phoneHref = telOf(biz) ?? "";
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -80,19 +92,19 @@ export function Header() {
         <div
           aria-hidden
           className={clsx(
-            "absolute inset-0 border-b bg-ink/85 backdrop-blur-md transition-opacity duration-700",
+            "header-bg absolute inset-0 border-b bg-ink/85 backdrop-blur-md transition-opacity duration-700",
             scrolled && !open ? "border-line opacity-100" : "border-transparent opacity-0",
           )}
         />
         <div className="relative flex h-[var(--header-h)] items-center justify-between gap-6 px-[var(--gutter)]">
           <Link href="/" className="relative z-10 -my-2 inline-flex min-h-11 items-center py-2">
             <Logo />
-            <span className="sr-only">, home</span>
+            <span className="sr-only">{t(", home")}</span>
           </Link>
 
-          <nav aria-label="Main" className="hidden lg:block">
+          <nav aria-label={t("Main")} className="hidden lg:block">
             <ul className="flex items-center gap-1">
-              {nav.map((item) => (
+              {links.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -119,11 +131,11 @@ export function Header() {
               {biz.phoneDisplay}
             </a>
             <Link
-              href="/consultation"
+              href={sr ? "#kontakt" : "/consultation"}
               className="group relative hidden min-h-11 items-center overflow-hidden rounded-full bg-brass px-5 text-[0.88rem] font-medium text-ink sm:inline-flex"
             >
               <span aria-hidden className="absolute inset-0 origin-bottom scale-y-0 bg-parchment transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-y-100" />
-              <span className="relative">Book a consultation</span>
+              <span className="relative">{t("Book a consultation")}</span>
             </Link>
             <button
               ref={toggleRef}
@@ -131,7 +143,7 @@ export function Header() {
               onClick={() => setOpen((o) => !o)}
               aria-expanded={open}
               aria-controls="site-menu"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={t(open ? "Close menu" : "Open menu")}
               className="relative flex h-11 w-11 items-center justify-center rounded-full border border-line-strong lg:hidden"
             >
               <span className={clsx("absolute h-px w-4 bg-current transition-transform duration-500", open ? "rotate-45" : "-translate-y-[3px]")} />
@@ -150,13 +162,14 @@ export function Header() {
             open ? "[clip-path:inset(0_0_0_0)]" : "[clip-path:inset(0_0_100%_0)]",
           )}
         >
-          <p className="t-caps-sm text-brass">Contents</p>
+          <p className="t-caps-sm text-brass">{t("Contents")}</p>
           <ol className="mt-5 border-t border-line">
-            {[{ href: "/", label: "Home" }, ...nav, { href: "/contact", label: "Contact" }].map((item, i) => (
+            {[{ href: "/", label: t("Home") }, ...links, ...(sr ? [] : [{ href: "/contact", label: "Contact" }])].map((item, i) => (
               <li key={item.href} className="border-b border-line">
                 <Link
                   href={item.href}
                   aria-current={pathname === item.href ? "page" : undefined}
+                  onClick={() => setOpen(false)}
                   className="flex min-h-14 items-baseline gap-4 py-3"
                   style={{ transitionDelay: open ? `${120 + i * 50}ms` : "0ms" }}
                 >
@@ -173,8 +186,8 @@ export function Header() {
               <a href={phoneHref} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-line-strong px-5">
                 <Phone className="text-brass" /> {biz.phoneDisplay}
               </a>
-              <Link href="/consultation" className="inline-flex min-h-12 items-center rounded-full bg-brass px-5 font-medium text-ink">
-                Book a consultation
+              <Link href={sr ? "#kontakt" : "/consultation"} onClick={() => setOpen(false)} className="inline-flex min-h-12 items-center rounded-full bg-brass px-5 font-medium text-ink">
+                {t("Book a consultation")}
               </Link>
             </div>
           </div>

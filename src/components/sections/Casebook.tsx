@@ -10,7 +10,7 @@ export function Casebook({ ids = ["relocation", "muniment", "founders"] }: { ids
   const items = ids.map((id) => stories.find((s) => s.id === id)!).filter(Boolean);
   return (
     <div>
-      <Reveal stagger={0.12} className="grid border-t border-line-strong md:grid-cols-3">
+      <Reveal stagger={0.12} className="case-row no-scrollbar grid border-t border-line-strong md:grid-cols-3">
         {items.map((s, i) => (
           <article key={s.id} className={`flex flex-col py-10 md:px-8 ${i > 0 ? "border-t border-line md:border-l md:border-t-0" : "md:pl-0"} ${i === items.length - 1 ? "md:pr-0" : ""}`}>
             <p className="t-caps-sm text-accent">{s.matter}</p>

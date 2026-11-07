@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { prefersReducedMotion } from "@/lib/gsap";
+import { isPhone, prefersReducedMotion } from "@/lib/gsap";
 
 /**
  * Hands a CSS marquee to the reader's scroll: scrolling down sends the letters
@@ -13,7 +13,7 @@ export function ScrollBoost({ children, className }: { children: ReactNode; clas
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || isPhone() || prefersReducedMotion()) return;
     const anims = () => Array.from(el.querySelectorAll<HTMLElement>(".marquee")).flatMap((m) => m.getAnimations());
     let rate = 1;
     let goal = 1;

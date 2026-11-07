@@ -36,6 +36,8 @@
   - Mobile inner pages: P 91–93 / A 100 / BP 100.
   - Desktop: P 99–100 / A 100 / BP 100.
   - CLS 0 everywhere.
+- Phone pass (375 x 812, production build): 11.9 screens (was 25), reviews start on screen 2 (was 18), JS 183 KB gzip, everything on first load 374 KB, fonts 26 KB in 2 files, hero still 26 KB, LCP 0.6 s (1.8 s on slow 4G with a 4x slower CPU), CLS 0. Opening settled in about 1.5 s on any screen. First screen shows practice areas + town, Google rating and a Call button with the number; three full reviews inside the first four screens; order: what we handle, reviews, next steps + costs, lawyers + credentials, contact. No GSAP, Lenis, WebGL or pinned scenes on phones.
+- Serbian previews (`lang: "sr"`) follow our reading of the Bar code rule 17 and Advocacy Act art. 24 on every screen: name, contacts, normal hours, education, languages and branches of law only, with a plain contact section and calm motion. Education and languages use statements true of any registered Serbian advocate, because the CRM doesn't send them; replace them with the firm's own if it ever does. Reviews and stars stay English-only.
 
 ## Portfolio copy
 EN title: Whitcombe & Vale: Boutique Law Firm, Dallas

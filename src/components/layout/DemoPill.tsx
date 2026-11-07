@@ -2,25 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { agencyName, agencyUrl } from "@/content/site";
-import { useBiz } from "@/components/preview/BizContext";
+import { useBiz, useT } from "@/components/preview/BizContext";
 
 const KEY = "wv-demo-pill-dismissed";
 
-/** Small fixed pill that marks the site as a Scale by Noon concept. Dismissible for the session. */
+/**
+ * Small pill that marks the site as a Scale by Noon concept. Dismissible for the session.
+ * Fixed in the corner on desktop; on phones it sits in the page flow under the footer, where it can't cover anything.
+ */
 export function DemoPill() {
   const biz = useBiz();
-  const [show, setShow] = useState(false);
+  const t = useT();
+  // Rendered from the server on, so it never pushes the page when the browser takes over
+  const [show, setShow] = useState(true);
   useEffect(() => {
     let dismissed = false;
     try {
       dismissed = sessionStorage.getItem(KEY) === "1";
     } catch {}
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sessionStorage is client-only
-    if (!dismissed) setShow(true);
+    if (dismissed) setShow(false);
   }, []);
-  if (!show) return null;
   return (
-    <div className="anim-fade fixed bottom-[5.2rem] left-3 z-[66] flex items-center rounded-full border border-parchment/20 bg-charcoal/90 pl-3.5 text-[0.7rem] md:pl-4 md:text-[0.78rem] text-parchment shadow-lg backdrop-blur md:bottom-4 md:left-4" style={{ "--d": "2.5s" } as React.CSSProperties}>
+    <div className="demo-pill-wrap">
+      {show && (
+    <div className="demo-pill anim-fade fixed bottom-[5.2rem] left-3 z-[66] flex items-center rounded-full border border-parchment/20 bg-charcoal/90 pl-3.5 text-[0.7rem] md:pl-4 md:text-[0.78rem] text-parchment shadow-lg backdrop-blur md:bottom-4 md:left-4" style={{ "--d": "2.5s" } as React.CSSProperties}>
       <a href={agencyUrl} className="inline-flex min-h-10 items-center gap-1.5 pr-1 hover:text-brass-light">
         {biz.preview ? (
           <span className="inline-block max-w-[15rem] truncate align-bottom sm:max-w-none">
@@ -44,11 +50,13 @@ export function DemoPill() {
             sessionStorage.setItem(KEY, "1");
           } catch {}
         }}
-        aria-label="Dismiss concept site notice"
+        aria-label={t("Dismiss concept site notice")}
         className="flex h-10 w-10 items-center justify-center rounded-full text-parchment/70 hover:text-parchment"
       >
         <span aria-hidden className="text-base leading-none">×</span>
       </button>
+    </div>
+      )}
     </div>
   );
 }

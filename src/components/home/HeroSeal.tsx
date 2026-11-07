@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { prefersReducedMotion } from "@/lib/gsap";
+import { isPhone, prefersReducedMotion } from "@/lib/gsap";
 import { useBiz } from "@/components/preview/BizContext";
 import { site } from "@/content/site";
 
@@ -29,8 +29,9 @@ const RIM = (() => {
  * come to rest perfectly level by the time the arch has opened ("Come in.").
  * A foil sheen follows the pointer across the brass. The lettering carries the
  * real firm's name on a personalised preview.
+ * `still` is the phone hero's copy: no script at all, its scales settle once with CSS.
  */
-export function HeroSeal({ className }: { className?: string }) {
+export function HeroSeal({ className, still = false }: { className?: string; still?: boolean }) {
   const biz = useBiz();
   const sr = biz.lang === "sr";
   const id = useId().replace(/[^a-z0-9]/gi, "");
@@ -49,7 +50,7 @@ export function HeroSeal({ className }: { className?: string }) {
 
   useEffect(() => {
     const el = root.current;
-    if (!el || prefersReducedMotion()) return;
+    if (still || !el || isPhone() || prefersReducedMotion()) return;
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     let angle = 0;
     let vel = 0;
@@ -67,8 +68,8 @@ export function HeroSeal({ className }: { className?: string }) {
       const t = (now - t0) / 1000;
       const p = progress();
       const settle = 1 - p * p * (3 - 2 * p); // smoothstep: lively at the top, level by the end
-      // Wait for the stamp to land (CSS, ~1.9 s), then let it come alive
-      const wake = Math.min(1, Math.max(0, (t - 1.9) / 1.2));
+      // Wait for the stamp to land (CSS, ~1.15 s), then let it come alive
+      const wake = Math.min(1, Math.max(0, (t - 1.15) / 1.2));
       const target = (Math.sin(t * 0.55) * 2.4 + Math.sin(t * 0.21 + 1) * 1.4 + lean * 7) * settle * wake;
       const dy = window.scrollY - lastY;
       lastY = window.scrollY;
@@ -103,11 +104,11 @@ export function HeroSeal({ className }: { className?: string }) {
       io.disconnect();
       window.removeEventListener("pointermove", onMove);
     };
-  }, []);
+  }, [still]);
 
   const brass = `url(#seal-foil-${id})`;
   return (
-    <div ref={root} aria-hidden data-no-translate className={className}>
+    <div ref={root} aria-hidden className={className}>
       <div className="seal-stamp relative aspect-square w-full">
         <span className="seal-press absolute inset-0 rounded-full border border-brass/60" />
         <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full overflow-visible">
@@ -144,15 +145,15 @@ export function HeroSeal({ className }: { className?: string }) {
             <path d={`M${C} ${PIVOT.y - 4} V131`} />
             <path d="M88 136 Q100 129 112 136 M84 136.5 H116" />
             <circle cx={C} cy={PIVOT.y - 7.5} r="3" />
-            <g ref={beam}>
+            <g ref={beam} className="seal-beam">
               <path d={`M${PIVOT.x - ARM - 2} ${PIVOT.y} Q${C} ${PIVOT.y - 3.5} ${PIVOT.x + ARM + 2} ${PIVOT.y}`} />
               <circle cx={PIVOT.x - ARM} cy={PIVOT.y} r="1.3" fill={brass} />
               <circle cx={PIVOT.x + ARM} cy={PIVOT.y} r="1.3" fill={brass} />
               <g transform={`translate(${PIVOT.x} ${PIVOT.y})`}>
-                <g ref={panL} transform={`translate(${-ARM} 0)`}>
+                <g ref={panL} className="seal-pan-l" transform={`translate(${-ARM} 0)`}>
                   <path d="M0 0 L-9 22 M0 0 L9 22 M-12 22 Q0 31 12 22 Z" />
                 </g>
-                <g ref={panR} transform={`translate(${ARM} 0)`}>
+                <g ref={panR} className="seal-pan-r" transform={`translate(${ARM} 0)`}>
                   <path d="M0 0 L-9 22 M0 0 L9 22 M-12 22 Q0 31 12 22 Z" />
                 </g>
               </g>

@@ -30,11 +30,11 @@ const signatures = [
 export function AttorneysGallery({ headingLevel = "h3" }: { headingLevel?: "h2" | "h3" }) {
   const Title = headingLevel;
   return (
-    <ul className="grid gap-16 md:grid-cols-3 md:gap-8 lg:gap-14">
+    <ul className="att-row no-scrollbar grid gap-16 md:grid-cols-3 md:gap-8 lg:gap-14">
       {attorneys.map((a, i) => (
         <li key={a.slug} className={clsx(i === 1 && "md:mt-28", i === 2 && "md:mt-12")}>
           <Link href={`/attorneys/${a.slug}`} className="group block" data-cursor="Profile">
-            <Parallax className="arch-sm aspect-[4/5] bg-ink" amount={8} from="inset(100% 0% 0% 0%)">
+            <Parallax className="att-photo arch-sm aspect-[4/5] bg-ink" amount={8} from="inset(100% 0% 0% 0%)">
               <div className="absolute inset-0">
                 <Image
                   src={photos[a.photo]}
@@ -56,7 +56,7 @@ export function AttorneysGallery({ headingLevel = "h3" }: { headingLevel?: "h2" 
                 </span>
               </Title>
               <p className="t-italic mt-4 max-w-sm text-[0.98rem] leading-snug text-muted">&ldquo;{a.quote}&rdquo;</p>
-              <PenMark paths={signatures[i % signatures.length]} viewBox="0 0 220 70" strokeWidth={1.3} duration={0.9} delay={0.7} className="mt-3 aspect-[22/7] w-44 text-accent" />
+              <PenMark paths={signatures[i % signatures.length]} viewBox="0 0 220 70" strokeWidth={1.3} duration={0.9} delay={0.7} className="att-sign mt-3 aspect-[22/7] w-44 text-accent" />
               {a.languages.length > 1 && <p className="t-caps-sm mt-4 text-muted">English · Español</p>}
             </Reveal>
           </Link>

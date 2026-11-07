@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = L(
     biz,
     `Divorce and custody, wills and estates, and business law in ${biz.area}. A free, confidential 15-minute first call. Call ${biz.phoneDisplay || "us"}.`,
-    `Razvod i deca, testamenti i nasleđe, osnivanje firmi i ugovori — ${biz.area}. Prvi razgovor od 15 minuta je besplatan i poverljiv. Pozovite ${biz.phoneDisplay || "nas"}.`,
+    `Porodično, nasledno i privredno pravo${biz.area ? `, ${biz.area}` : ""}.${biz.phoneDisplay ? ` Telefon: ${biz.phoneDisplay}.` : ""}`,
   );
   return {
     title: { absolute: title },

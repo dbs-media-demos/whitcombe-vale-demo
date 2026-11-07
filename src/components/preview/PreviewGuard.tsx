@@ -13,6 +13,9 @@ export function PreviewGuard() {
 
   useEffect(() => {
     document.documentElement.lang = biz.lang === "sr" ? "sr-Latn" : "en-US";
+    // The skip link lives in the root layout, above the provider
+    const skip = document.querySelector('a[href="#main"]');
+    if (skip && biz.lang === "sr") skip.textContent = "Preskoči na sadržaj";
   }, [biz.lang]);
 
   useEffect(() => {

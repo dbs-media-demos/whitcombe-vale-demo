@@ -6,16 +6,17 @@ import { PenMark } from "@/components/ui/PenMark";
 import { ScrollBoost } from "@/components/ui/ScrollBoost";
 import { reviews, type Review } from "@/content/reviews";
 import { defaultBiz } from "@/lib/biz";
-import { L, type Biz } from "@/lib/biz-core";
+import type { Biz } from "@/lib/biz-core";
+import { trFor } from "@/i18n/tr";
 
-export function ReviewCard({ r, className, area }: { r: Review; className?: string; area?: string }) {
+export function ReviewCard({ r, className, area, text }: { r: Review; className?: string; area?: string; text?: string }) {
   return (
     <figure className={`flex h-full flex-col border border-line bg-surface/60 p-7 ${className ?? ""}`}>
       <div className="flex items-center justify-between gap-4">
         <Stars value={r.rating} className="text-brass" />
         <span className="t-caps-sm text-faint">{r.matter}</span>
       </div>
-      <blockquote className="mt-5 flex-1 font-serif text-[1.02rem] leading-relaxed">&ldquo;{r.text}&rdquo;</blockquote>
+      <blockquote className="mt-5 flex-1 font-serif text-[1.02rem] leading-relaxed">&ldquo;{text ?? r.text}&rdquo;</blockquote>
       <figcaption className="mt-6 flex items-center justify-between border-t border-line pt-4 text-sm">
         <span className="font-medium">{r.name}</span>
         <span className="text-muted">{area ?? r.area}</span>
@@ -24,18 +25,18 @@ export function ReviewCard({ r, className, area }: { r: Review; className?: stri
   );
 }
 
-/** Google-style rating summary and a slow ticker of client reviews. */
-// Serbian previews keep the reviews whose matters exist there (no living trusts, Texas probate or Thanksgiving)
-const SR_REVIEWS = ["Rachel M.", "Chris O.", "Jenna & Luis R.", "Harold W."];
-
+/** Google-style rating summary and a slow ticker of client reviews. Phones stack the first three, full and unticking. English only. */
 export function ReviewsBand({ biz = defaultBiz }: { biz?: Biz }) {
-  const list = biz.lang === "sr" ? reviews.filter((r) => SR_REVIEWS.includes(r.name)) : reviews;
+  const t = trFor(biz);
+  const list = reviews;
   const area = biz.preview ? biz.area : undefined;
   return (
-    <section aria-labelledby="reviews-title" className="theme-ink relative overflow-hidden py-28 md:py-36">
+    <section aria-labelledby="reviews-title" className="reviews-band ph-o3 theme-ink relative overflow-hidden py-28 md:py-36">
       <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-7">
-          <p className="t-caps-sm text-brass">{biz.preview ? L(biz, "§ 08 · Correspondence · samples", "§ 08 · Utisci · primeri") : "§ 08 · Correspondence"}</p>
+          <p className="t-caps-sm text-brass">
+            <span className="ph-hide">§ 08 · </span>Correspondence{biz.preview && " · samples"}
+          </p>
           <h2 id="reviews-title" className="t-display t-lg mt-5">
             What clients write{" "}
             <span className="relative inline-block">
@@ -50,8 +51,8 @@ export function ReviewsBand({ biz = defaultBiz }: { biz?: Biz }) {
         </div>
         {biz.rating && (
           <Reveal className="flex items-end gap-6 lg:col-span-5 lg:justify-end">
-            <p className="t-display relative text-[clamp(4.5rem,8vw,7.5rem)] leading-[0.8]">
-              {biz.lang === "sr" ? String(biz.rating.value).replace(".", ",") : biz.rating.value}
+            <p className="reviews-score t-display relative text-[clamp(4.5rem,8vw,7.5rem)] leading-[0.8]">
+              {biz.rating.value}
               {/* Circled in brass ink, like the figure that matters on a page */}
               <PenMark
                 viewBox="0 0 240 130"
@@ -64,7 +65,7 @@ export function ReviewsBand({ biz = defaultBiz }: { biz?: Biz }) {
             <div className="pb-1">
               <Stars value={5} className="text-brass" />
               <p className="mt-2 text-sm text-muted">
-                {L(biz, `${biz.rating.count} Google reviews`, `${biz.rating.count} Google recenzija`)}
+                {biz.rating.count} Google reviews
                 {!biz.preview && (
                   <>
                     <br />
@@ -84,6 +85,7 @@ export function ReviewsBand({ biz = defaultBiz }: { biz?: Biz }) {
             <div key={r.name} className="w-[82vw] shrink-0 pr-5 sm:w-[26rem]">
               <ReviewCard
                 r={r}
+                text={t(r.text)}
                 area={area}
                 className={`letter ${["-rotate-[0.9deg]", "rotate-[0.6deg] translate-y-2", "rotate-[-0.3deg] -translate-y-1", "rotate-[1deg]"][i % 4]}`}
               />
