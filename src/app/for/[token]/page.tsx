@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HomeContent } from "@/components/home/HomeContent";
+import { preloadPhoneHero } from "@/components/home/preloadPhoneHero";
 import { previewBiz } from "@/lib/preview";
 import { L } from "@/lib/biz-core";
 
@@ -31,6 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PreviewPage({ params }: Props) {
+  // Before waiting for the CRM, so the phone hero's photo is still preloaded from the <head>
+  preloadPhoneHero();
   const biz = await previewBiz((await params).token);
   if (!biz) notFound();
   return <HomeContent biz={biz} />;

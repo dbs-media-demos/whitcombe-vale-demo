@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { preloadPhoneHero } from "@/components/home/preloadPhoneHero";
 import { PageShell } from "@/components/layout/PageShell";
 import { Threshold } from "@/components/home/Threshold";
 import { Overture } from "@/components/home/Overture";
@@ -38,6 +39,7 @@ import { trFor } from "@/i18n/tr";
 export function HomeContent({ biz = defaultBiz, children }: { biz?: Biz; children?: ReactNode }) {
   const sr = biz.lang === "sr";
   const t = trFor(biz);
+  preloadPhoneHero();
   return (
     <PageShell>
       {children}

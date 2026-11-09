@@ -10,6 +10,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // One render-blocking round trip less for a first visit on a slow phone (the lead opening our link):
+  // the 18 KB of CSS arrives with the HTML
+  experimental: { inlineCss: true },
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [60, 75, 85],

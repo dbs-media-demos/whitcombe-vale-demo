@@ -6,7 +6,7 @@
 - Live URL: https://whitcombe-vale-demo.vercel.app
 - Repo: https://github.com/dbs-media-demos/whitcombe-vale-demo (public, branch main)
 - Folder: DBS Media Portfolio/Demo Websites/law-firm
-- Stack: Next.js 16.3.6, React 19.2.8, Tailwind v4, GSAP 3.15 (ScrollTrigger, SplitText), Lenis
+- Stack: Next.js 16.3.6, React 19.2.8, Tailwind v4, GSAP 3.15 (ScrollTrigger, SplitText), Lenis, three.js 0.187 (desktop only)
 - Palette: #0F2A22 ink green · #1F3D32 chancery green · #F3EEE3 parchment · #E6DDCB vellum · #1C1C1A charcoal · #B08D57 brass · #7A5C2E deep brass · #6B1E23 oxblood
   Fonts: Libre Caslon Display, Libre Caslon Text, Hanken Grotesk
 - Pages: 28 routes, all static except the OG image:
@@ -16,7 +16,9 @@
   - Privacy, Legal disclaimer, 404.
 - Signature features:
   - "The Threshold" hero: a tall arched window with a WebGL layer of drifting window light and dust. It opens to full-bleed as you scroll ("Come in.").
-  - The firm's seal is stamped beside the headline: an engraved ring with the firm's name (the real firm's on a preview) around a pair of scales that sway, lean towards the pointer, swing with the scroll and settle level as the arch opens.
+  - Brass scales in real-time 3D (three.js) stand beside the headline: turned from lathe profiles in code (no downloaded model), lacquered brass reflecting a dark studio with a warm "window" softbox, and one warm key light from the arch that throws the balance's soft shadow onto the wall behind it. About a second after the page settles a weight seems to land in one pan and the balance swings back to level; it leans towards the pointer (the camera drifts a few degrees with it), the pans swing in depth as you scroll, and it comes to rest level and fades as the arch opens. Frames are drawn only while something moves and the hero is on screen.
+  - Desktop only: the server HTML carries a still rendered from the same scene and camera (`scripts/render-scales.mjs`, AVIF + WebP with alpha), so the canvas fades in over it without a jump. three.js is fetched with `await import()` only after load, on a screen ≥ 1024 px with a mouse, without reduced motion or Save-Data; phones, tablets, small windows and Serbian previews keep the still and download zero bytes of three.js. Serbian pages show the still on desktop too (the Bar code asks for a sober look: no showpiece 3D).
+  - Phones get a tighter still of the same scales beside the Call button (it shrinks to the room a long number leaves and never covers the button).
   - Practice areas as a book's table of contents: chapter numerals, dotted leaders and page numbers, with leather thumb-index tabs sliding out at the page edge, one per part. Hovering floats an arch-framed photo that follows the cursor; clicking morphs it into the chapter hero (React `ViewTransition`).
   - "Your first consultation": a pinned section where a brass pen stroke draws through four steps as background photos change, and a "Signed" stamp lands on the fee agreement. Vertical version on phones.
   - Case intake wizard: matter, then 3–4 questions, then a day/time picker with booked slots, then contact details. The attorney-client notice is always shown. It ends with an oxblood wax-seal stamp and a matter number.
@@ -36,7 +38,7 @@
   - Mobile inner pages: P 91–93 / A 100 / BP 100.
   - Desktop: P 99–100 / A 100 / BP 100.
   - CLS 0 everywhere.
-- Phone pass (375 x 812, production build): 11.9 screens (was 25), reviews start on screen 2 (was 18), JS 183 KB gzip, everything on first load 374 KB, fonts 26 KB in 2 files, hero still 26 KB, LCP 0.6 s (1.8 s on slow 4G with a 4x slower CPU), CLS 0. Opening settled in about 1.5 s on any screen. First screen shows practice areas + town, Google rating and a Call button with the number; three full reviews inside the first four screens; order: what we handle, reviews, next steps + costs, lawyers + credentials, contact. No GSAP, Lenis, WebGL or pinned scenes on phones.
+- Phone pass (375 x 812, production build): 11.9 screens (was 25), reviews start on screen 2 (was 18), JS 187 KB gzip, zero bytes of three.js, everything on first load about 446 KB (scales still 22 KB AVIF), fonts 27 KB in 2 files, LCP 1.55–1.8 s on slow 4G with a 4x slower CPU (Chromium, home and both preview languages; CSS is inlined and the hero photo preloaded from the head), Total Blocking Time 100–260 ms, CLS 0. Opening settled in about 1.5 s on any screen. First screen shows practice areas + town, Google rating and a Call button with the number; three full reviews inside the first four screens; order: what we handle, reviews, next steps + costs, lawyers + credentials, contact. No GSAP, Lenis, WebGL or pinned scenes on phones.
 - Serbian previews (`lang: "sr"`) follow our reading of the Bar code rule 17 and Advocacy Act art. 24 on every screen: name, contacts, normal hours, education, languages and branches of law only, with a plain contact section and calm motion. Education and languages use statements true of any registered Serbian advocate, because the CRM doesn't send them; replace them with the firm's own if it ever does. Reviews and stars stay English-only.
 
 ## Portfolio copy
@@ -54,4 +56,5 @@ handoff/desktop-home.png, handoff/desktop-feature.png, handoff/mobile-home.png, 
 - **The business is fictional.** Phone (214) 555-0182 is in the reserved range, and 1847 Ashland Row is an invented street. Attorney portraits are Unsplash photos of models.
 - **Photos:** 48 Unsplash photos, all given one grade by `scripts/grade.mjs`. Sources are listed in `public/images/SOURCES.md`.
 - **Forms** validate and show a success state but send nothing.
+- **3D stills:** after changing `src/components/fx/scales/scene.ts`, run `node scripts/render-scales.mjs` (needs Playwright with a Chromium) so the stills match the live scene again.
 - **Dev server:** port 4170, entry `law-firm-demo` in the workspace `.claude/launch.json`.

@@ -1006,34 +1006,31 @@ img {
     font-size: 1.02rem;
     white-space: nowrap;
   }
-  .hero-ph-seal {
-    position: absolute;
-    /* In the arch's shoulder, wholly below the Call button whatever the number's length */
-    right: calc(var(--gutter) - 0.3rem);
-    bottom: -5.2rem;
-    width: 4.75rem;
-    border-radius: 50%;
-    background: var(--ink);
+  /* The brass scales, a still from the desktop's 3D scene, beside the Call button and behind the text:
+     it shrinks to whatever room a long phone number leaves, and never covers the button */
+  .hero-ph-act {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+  .hero-ph-act .hero-ph-call {
+    margin-top: 0;
+    flex: none;
+  }
+  .hero-ph-scales-slot {
+    position: relative;
+    z-index: -1;
+    flex: 0 1 8.75rem;
+    min-width: 0;
+    margin: 0 calc(-0.6rem - var(--gutter) * 0.25) 0 auto;
     pointer-events: none;
   }
-
-  /* The one touch that belongs to a law firm: the scales find their balance once, as the page opens */
-  @media (prefers-reduced-motion: no-preference) {
-    .hero-ph-seal .seal-beam {
-      transform-origin: 100px 86px;
-      animation: scales-beam 2.6s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s both;
-    }
-    .hero-ph-seal .seal-pan-l {
-      animation: scales-pan-l 2.6s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s both;
-    }
-    .hero-ph-seal .seal-pan-r {
-      animation: scales-pan-r 2.6s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s both;
-    }
-    .sober .hero-ph-seal .seal-beam,
-    .sober .hero-ph-seal .seal-pan-l,
-    .sober .hero-ph-seal .seal-pan-r {
-      animation: none;
-    }
+  .hero-ph-scales {
+    position: absolute;
+    right: 0;
+    bottom: -1.3rem;
+    width: 100%;
   }
 
   /* ── what we handle ── */
@@ -1773,25 +1770,4 @@ img {
   to {
     opacity: 1;
   }
-}
-@keyframes scales-beam {
-  0% { transform: rotate(-9deg); }
-  28% { transform: rotate(6deg); }
-  52% { transform: rotate(-3.2deg); }
-  74% { transform: rotate(1.2deg); }
-  100% { transform: rotate(0deg); }
-}
-@keyframes scales-pan-l {
-  0% { transform: translate(-30px, 0) rotate(9deg); }
-  28% { transform: translate(-30px, 0) rotate(-6deg); }
-  52% { transform: translate(-30px, 0) rotate(3.2deg); }
-  74% { transform: translate(-30px, 0) rotate(-1.2deg); }
-  100% { transform: translate(-30px, 0) rotate(0deg); }
-}
-@keyframes scales-pan-r {
-  0% { transform: translate(30px, 0) rotate(9deg); }
-  28% { transform: translate(30px, 0) rotate(-6deg); }
-  52% { transform: translate(30px, 0) rotate(3.2deg); }
-  74% { transform: translate(30px, 0) rotate(-1.2deg); }
-  100% { transform: translate(30px, 0) rotate(0deg); }
 }

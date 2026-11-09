@@ -11,7 +11,7 @@ import heroPhone from "@/assets/photos/hero-phone.jpg";
 import { site } from "@/content/site";
 import { useBiz, useT } from "@/components/preview/BizContext";
 import { L, num, telOf } from "@/lib/biz-core";
-import { HeroSeal } from "@/components/home/HeroSeal";
+import { HeroScales, HeroScalesStill } from "@/components/home/HeroScales";
 import { Phone, Stars } from "@/components/ui/Icons";
 
 // The shader only starts when the browser is idle anyway, so its code loads after hydration. Desktop only.
@@ -19,6 +19,7 @@ const WindowLight = dynamic(() => import("@/components/fx/WindowLight").then((m)
 
 const d = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
 
+// Keep in step with the preload in HomeContent
 const PHONE_SIZES = "(min-width: 768px) 28rem, 90vw";
 
 /**
@@ -64,7 +65,7 @@ export function Threshold() {
         .to("[data-line='1']", { xPercent: -18, opacity: 0, duration: 0.7 }, 0)
         .to("[data-line='2']", { xPercent: 18, opacity: 0, duration: 0.7 }, 0)
         .to("[data-hero-meta]", { opacity: 0, y: -20, duration: 0.4 }, 0)
-        .to("[data-seal]", { opacity: 0, scale: 0.9, duration: 0.3 }, 0.5)
+        .fromTo("[data-seal]", { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.9, duration: 0.3 }, 0.5)
         .fromTo("[data-inside]", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, 0.55);
     });
     return () => mm.revert();
@@ -139,17 +140,22 @@ export function Threshold() {
             </span>
           </a>
         )}
-        {tel ? (
-          <a href={tel} className="hero-ph-call">
-            <Phone className="h-[1.1rem] w-[1.1rem]" />
-            {L(biz, "Call", "Pozovite")} {biz.phoneDisplay}
-          </a>
-        ) : (
-          <a href={sr ? "#kontakt" : "#contact-form"} className="hero-ph-call">
-            {L(biz, "Book a free call", "Kontakt")}
-          </a>
-        )}
-        <HeroSeal still className="hero-ph-seal" />
+        {/* The Call button and the scales share a row: the still only takes the room the button leaves */}
+        <div className="hero-ph-act">
+          {tel ? (
+            <a href={tel} className="hero-ph-call">
+              <Phone className="h-[1.1rem] w-[1.1rem]" />
+              {L(biz, "Call", "Pozovite")} {biz.phoneDisplay}
+            </a>
+          ) : (
+            <a href={sr ? "#kontakt" : "#contact-form"} className="hero-ph-call">
+              {L(biz, "Book a free call", "Kontakt")}
+            </a>
+          )}
+          <span aria-hidden className="hero-ph-scales-slot">
+            <HeroScalesStill className="hero-ph-scales" />
+          </span>
+        </div>
       </div>
 
       <div className="threshold-desk ph-hide relative flex h-full flex-col justify-between px-[var(--gutter)] pb-20 pt-[calc(var(--header-h)+1.75rem)] max-md:pb-28">
@@ -169,29 +175,29 @@ export function Threshold() {
         </div>
 
         <div className="relative z-10 text-[clamp(3.2rem,min(9vw,15vh),10rem)]">
-          {/* Stamped beside the headline: at the crown of the arch on phones, in the hollow below line one on larger screens */}
-          <div data-seal className="absolute inset-x-0 bottom-full mx-auto mb-[4vh] w-[7rem] md:bottom-auto md:left-[0.04em] md:right-auto md:top-[1.02em] md:mx-0 md:mb-0 md:w-[1.8em]">
-            <HeroSeal />
+          {/* The firm's brass scales, in the hollow below line one: live 3D on a desktop with a mouse, a still otherwise */}
+          <div data-seal className="pointer-events-none absolute left-[-0.4em] top-[0.78em] -z-10 w-[min(3.95em,52svh)]">
+            <HeroScales live={!sr} className="scales-in" />
           </div>
           <h1 id="hero-title" className="t-display leading-[0.9]">
-            <span data-line="1" className="anim-line">
-              <span style={d(0.1)}>{sr ? "Porodično, nasledno" : "Quiet counsel"}</span>
+            <span data-line="1" className="block">
+              <span>{sr ? "Porodično, nasledno" : "Quiet counsel"}</span>
             </span>
-            <span data-line="2" className="anim-line text-right">
-              <span style={d(0.18)}>
+            <span data-line="2" className="block text-right">
+              <span>
                 {sr ? "i " : "for life’s "}
                 <em className="t-italic text-brass-light">{sr ? "privredno" : "defining"}</em>
               </span>
             </span>
-            <span data-line="2" className="anim-line text-right">
-              <span style={d(0.26)}>
+            <span data-line="2" className="block text-right">
+              <span>
                 <em className="t-italic text-brass-light">{sr ? "pravo." : "chapters."}</em>
               </span>
             </span>
           </h1>
         </div>
 
-        <div data-hero-meta className="anim-fade flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" style={d(0.42)}>
+        <div data-hero-meta className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <p className="t-lead max-w-md text-[1.2rem] text-fg/85 max-sm:hidden">
             {biz.preview
               ? L(
@@ -239,19 +245,10 @@ export function Threshold() {
         }
         .threshold-curtain { transform: scaleY(0); animation: curtain 1.05s var(--ease-in-out-quart) 0.05s backwards; }
         @keyframes curtain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
-        .threshold .anim-line > span { animation-duration: 0.9s; }
         .threshold .anim-fade { animation-duration: 0.75s; }
         .threshold .anim-rule { animation-duration: 1s; }
-        .seal-stamp { animation: seal-stamp 0.6s cubic-bezier(.3,0,.2,1) 0.55s backwards; }
-        @keyframes seal-stamp {
-          0% { opacity: 0; transform: scale(1.5) rotate(-18deg); filter: blur(6px); }
-          70% { opacity: 1; transform: scale(0.965) rotate(0deg); filter: blur(0); }
-          100% { opacity: 1; transform: none; }
-        }
-        .seal-press { opacity: 0; animation: seal-press 0.8s var(--ease-out-expo) 0.95s; }
-        @keyframes seal-press { from { opacity: 0.9; transform: scale(0.98); } to { opacity: 0; transform: scale(1.45); } }
-        .seal-ring { transform-box: view-box; transform-origin: 100px 100px; animation: seal-turn 120s linear infinite; }
-        @keyframes seal-turn { to { transform: rotate(360deg); } }
+        .scales-in { animation: scales-in 1.1s var(--ease-out-expo) 0.35s backwards; }
+        @keyframes scales-in { from { opacity: 0; transform: translateY(14px); } }
         .scroll-cue { animation: cue 2.4s var(--ease-in-out-quart) infinite; }
         @keyframes cue { from { transform: translateY(-100%); } to { transform: translateY(200%); } }
       `}</style>
