@@ -1,5 +1,6 @@
 import {
   ACESFilmicToneMapping,
+  BoxGeometry,
   BufferGeometry,
   CanvasTexture,
   Color,
@@ -7,7 +8,9 @@ import {
   DirectionalLight,
   DoubleSide,
   Group,
+  HalfFloatType,
   LatheGeometry,
+  LinearSRGBColorSpace,
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
@@ -24,6 +27,7 @@ import {
   TorusGeometry,
   Vector2,
   Vector3,
+  WebGLCubeRenderTarget,
   WebGLRenderer,
   type Material,
   type Texture,
@@ -223,7 +227,7 @@ function latheMarks(): Texture {
  * A room for the brass to reflect: dark, with a warm softbox where the window is (to the right),
  * a narrow cool strip on the left and a dim ceiling. Metal is only ever what it reflects.
  */
-function studio(renderer: WebGLRenderer): Texture {
+async function studio(renderer: WebGLRenderer): Promise<Texture> {
   const room = new Scene();
   room.background = new Color(0x07130f);
   const panel = (w: number, h: number, rgb: [number, number, number], pos: [number, number, number]) => {
@@ -238,8 +242,38 @@ function studio(renderer: WebGLRenderer): Texture {
   panel(5, 1.2, [1.8, 1.4, 0.95], [-3, 4.5, -6]); // a warm kicker behind
   panel(14, 14, [0.05, 0.075, 0.06], [0, -3, 0]); // the floor, green-dark
   const pmrem = new PMREMGenerator(renderer);
+  // The generator's filters (a 256-sample GGX pass among them) would compile on the main thread the
+  // moment they are first used: a 200 ms freeze. So a dry run that draws nothing collects them, they
+  // compile in parallel off the main thread, and only then is the map filtered for real, by the same
+  // shaders, so it comes out identical.
+  const rt = new WebGLCubeRenderTarget(16, { type: HalfFloatType, colorSpace: LinearSRGBColorSpace });
+  const cam = new PerspectiveCamera();
+  const compileFor = async (s: Scene) => {
+    renderer.setRenderTarget(rt); // filters draw into float targets: compile them for one
+    const done = renderer.compileAsync(s, cam);
+    renderer.setRenderTarget(null);
+    await done;
+  };
+  await compileFor(room);
+  const gen = pmrem as unknown as { _renderCube: (t: unknown, lod: number, m: Material) => void };
+  const real = gen._renderCube;
+  const filters = new Scene();
+  const box = new BoxGeometry(1, 1, 1);
+  if (typeof real === "function") {
+    const seen = new Set<Material>();
+    gen._renderCube = (_t, _lod, m) => void seen.add(m);
+    try {
+      pmrem.fromScene(room, 0.035).dispose();
+    } finally {
+      gen._renderCube = real;
+    }
+    seen.forEach((m) => filters.add(new Mesh(box, m)));
+    await compileFor(filters);
+  }
   const env = pmrem.fromScene(room, 0.035).texture;
   pmrem.dispose();
+  rt.dispose();
+  box.dispose();
   room.traverse((o) => {
     if (o instanceof Mesh) {
       o.geometry.dispose();
@@ -278,9 +312,9 @@ export type ScalesScene = {
   /** The opening move: a weight seems to settle in one pan and the balance finds level again. */
   intro: () => void;
   resize: () => void;
-  /** Called once the first frame is on the canvas. */
-  onReady: (cb: () => void) => void;
   setVisible: (v: boolean) => void;
+  /** Stops drawing for good (the last frame stays on the canvas while it fades out). */
+  freeze: () => void;
   dispose: () => void;
 };
 
@@ -289,14 +323,20 @@ export type ScalesOptions = {
   still?: boolean;
   /** A different framing of the same scene: the phones' tighter still. */
   view?: { dist?: number; lookY?: number; lookX?: number };
+  /** The live page's context, already checked for a real GPU (src/lib/live-3d.ts). */
+  context?: WebGL2RenderingContext;
+  /** For the frame watch: time since the last drawn frame and this frame's own main-thread work (ms). */
+  onFrame?: (dt: number, work: number) => void;
 };
 
 /** Hands the main thread back between setup steps, so building the scene is never one long task. */
 const pause = () => new Promise<void>((r) => setTimeout(r, 0));
+const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOptions = {}): Promise<ScalesScene> {
   const renderer = new WebGLRenderer({
     canvas,
+    context: opts.context,
     alpha: true,
     antialias: true,
     powerPreference: "high-performance",
@@ -312,9 +352,10 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
   const scene = new Scene();
   const camera = new PerspectiveCamera(REST.fov, ASPECT, 0.5, 40);
   await pause();
-  const env = studio(renderer);
+  const env = await studio(renderer);
   await pause();
   const marks = latheMarks();
+  await pause();
 
   const brass = new MeshPhysicalMaterial({
     color: new Color(0.93, 0.72, 0.42),
@@ -375,6 +416,8 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
   pin.position.y = PIVOT_Y;
   balance.add(pin);
 
+  await pause();
+
   // ── the beam and its pans ──
   const beam = new Group();
   beam.position.y = PIVOT_Y;
@@ -415,6 +458,8 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
       pan.add(chain);
     }
   }
+
+  await pause();
 
   // ── light ──
   const key = new SpotLight(0xffe2b8, 110, 0, 0.27, 1, 2);
@@ -461,10 +506,9 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
     kick: 0,
   };
   let visible = true;
+  let frozen = false;
   let raf = 0;
   let last = 0;
-  let ready: (() => void) | null = null;
-  let drawn = false;
 
   const look = new Vector3(opts.view?.lookX ?? LOOK.x, opts.view?.lookY ?? LOOK.y, LOOK.z);
   const dist = opts.view?.dist ?? REST.dist;
@@ -486,10 +530,6 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
   const draw = () => {
     place();
     renderer.render(scene, camera);
-    if (!drawn) {
-      drawn = true;
-      ready?.();
-    }
   };
 
   const step = (dt: number) => {
@@ -526,35 +566,50 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
 
   // Rendered on demand: frames run only while something moves and the hero is on screen
   const frame = (now: number) => {
+    const t0 = performance.now();
     const dt = Math.min(1 / 30, last ? (now - last) / 1000 : 1 / 60);
-    last = now;
     const moving = step(dt);
     draw();
+    if (last) opts.onFrame?.(now - last, performance.now() - t0);
+    last = now;
     raf = moving && visible && !document.hidden ? requestAnimationFrame(frame) : 0;
     if (!raf) last = 0;
   };
   const wake = () => {
-    if (!raf && visible && !opts.still) raf = requestAnimationFrame(frame);
+    if (!raf && visible && !frozen && !opts.still && !document.hidden) raf = requestAnimationFrame(frame);
   };
 
   const resize = () => {
     const w = canvas.clientWidth || canvas.width;
     const h = canvas.clientHeight || canvas.height;
-    renderer.setPixelRatio(opts.still ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(opts.still ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.getDrawingBufferSize(res.value);
     draw();
   };
-  // Shaders compile in parallel where the GPU driver allows it, off the main thread
+  // Shaders compile in parallel where the GPU driver allows it, off the main thread. Then frames are
+  // drawn while the canvas is still invisible behind the still, so the shadow pass, the textures and
+  // the reflections are all on the GPU before anyone sees a frame: the live scene never compiles or
+  // uploads anything mid-scroll.
   place();
   await renderer.compileAsync(scene, camera);
   await pause();
   resize();
+  if (!opts.still) {
+    await nextFrame();
+    draw();
+    await nextFrame();
+  }
 
+  // A hidden tab stops the loop at once (and a fresh one starts on return, so the gap is never timed)
   const onVis = () => {
-    if (!document.hidden) wake();
+    if (document.hidden) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      last = 0;
+    } else wake();
   };
   document.addEventListener("visibilitychange", onVis);
 
@@ -576,16 +631,20 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
       s.phv[1] = -0.12;
       wake();
     },
-    resize,
-    onReady(cb) {
-      if (drawn) cb();
-      else ready = cb;
+    resize() {
+      if (!frozen) resize();
     },
     setVisible(vis) {
       visible = vis;
       if (vis) wake();
     },
+    freeze() {
+      frozen = true;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    },
     dispose() {
+      frozen = true;
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVis);
       for (const m of all) m.geometry.dispose();
@@ -595,6 +654,8 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
       env.dispose();
       marks.dispose();
       renderer.dispose();
+      // Hand the GPU context back now rather than whenever the canvas is collected
+      if (!opts.still) renderer.forceContextLoss();
     },
   };
 }

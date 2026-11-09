@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { PHONE_QUERY } from "@/lib/gsap";
+import { frameWatch, gpuContext, keepStillForVisit, stillForVisit } from "@/lib/live-3d";
 import type { ScalesScene } from "@/components/fx/scales/scene";
 
 /** Live 3D only on a big screen with a mouse. Everything else keeps the still. */
@@ -16,17 +17,23 @@ const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
  * never reaches a phone) and the live canvas fades in over the still from the very same camera. Then a
  * weight seems to settle in one pan and the balance swings back to level; it leans towards the pointer,
  * swings with the scroll and comes to rest level as the arch opens. Frames are drawn only while
- * something moves and the hero is on screen.
+ * something moves, the hero is on screen and the tab is visible.
+ *
+ * It never stutters on a weak machine: no real GPU keeps the still (and never fetches three.js); the
+ * still stays up until the shaders are compiled and frames have been drawn behind it; and if the first
+ * 2 s of frames run under ~45 fps the canvas fades back to the still for the rest of the visit.
  *
  * `live={false}` (Serbian pages: calm, no showpiece 3D) keeps the still everywhere.
  */
 export function HeroScales({ live = true, className }: { live?: boolean; className?: string }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [on, setOn] = useState(false);
+  const [shown, setShown] = useState(false);
+  // Frames are only timed once the canvas is the one on screen
+  const on = useRef(false);
 
   useEffect(() => {
     const el = canvas.current;
-    if (!live || !el) return;
+    if (!live || !el || stillForVisit()) return;
     const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     if (!window.matchMedia(DESK_3D).matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches || conn?.saveData) return;
 
@@ -34,24 +41,49 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
     let sc: ScalesScene | undefined;
     const timers: number[] = [];
     const off: (() => void)[] = [];
+    const teardown = () => {
+      off.forEach((f) => f());
+      off.length = 0;
+      sc?.dispose();
+      sc = undefined;
+    };
+
+    // Too slow here: back to the still (the canvas fades out on its last frame), the renderer is freed
+    // and every scene keeps its still for the rest of the visit
+    const fallBack = () => {
+      if (cancelled || !sc) return;
+      on.current = false;
+      sc.freeze();
+      keepStillForVisit();
+      setShown(false);
+      timers.push(window.setTimeout(teardown, 900));
+    };
 
     const start = async () => {
+      const t0 = performance.now();
+      // A real graphics chip or the still: checked before three.js is even fetched
+      const gl = gpuContext(el);
+      if (!gl) return keepStillForVisit();
+      const watch = frameWatch((v) => {
+        performance.mark("scales:verdict", { detail: v });
+        if (!v.pass) fallBack();
+      });
       let createScales: typeof import("@/components/fx/scales/scene").createScales;
       try {
         ({ createScales } = await import("@/components/fx/scales/scene"));
         if (cancelled) return;
-        sc = await createScales(el);
-        if (cancelled) return sc.dispose();
+        // Resolves once the shaders are compiled and frames have been drawn behind the still
+        sc = await createScales(el, { context: gl, onFrame: (dt, work) => on.current && watch(dt, work) });
+        if (cancelled) return teardown();
       } catch {
-        return; // no WebGL: the still stays
+        return; // the still stays
       }
       const scene = sc;
-      scene.onReady(() => {
-        if (cancelled) return;
-        setOn(true);
-        // The still and the first frame match, so the fade is invisible; then the balance moves
-        timers.push(window.setTimeout(() => scene.intro(), 650));
-      });
+      performance.measure("scales:ready", { start: t0, detail: { at: performance.now() } });
+      // The still and the first frame match, so the fade is invisible; then the balance moves
+      on.current = true;
+      setShown(true);
+      timers.push(window.setTimeout(() => scene.intro(), 650));
 
       let lastY = window.scrollY;
       let onScreen = true;
@@ -83,8 +115,8 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
     };
 
     // After the page has loaded, the opening has played (~1.2 s) and the browser is idle: the first
-    // paint never waits for the 3D, and its one-off setup (the WebGL context, the brass's reflections)
-    // never lands in the middle of the opening
+    // paint never waits for the 3D, and its one-off setup (the WebGL context, the brass's reflections,
+    // the shaders) runs behind the still, never in the middle of the opening
     const idle = () => {
       const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 120));
       timers.push(window.setTimeout(() => ric(() => void start(), { timeout: 1200 }), Math.max(0, 1200 - performance.now())));
@@ -97,9 +129,9 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
 
     return () => {
       cancelled = true;
+      on.current = false;
       timers.forEach(clearTimeout);
-      off.forEach((f) => f());
-      sc?.dispose();
+      teardown();
     };
   }, [live]);
 
@@ -117,10 +149,10 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
           height={870}
           alt=""
           decoding="async"
-          className={clsx("absolute inset-0 h-full w-full transition-opacity duration-700", on && "opacity-0 delay-300")}
+          className={clsx("absolute inset-0 h-full w-full transition-opacity duration-700", shown && "opacity-0 delay-300")}
         />
       </picture>
-      <canvas ref={canvas} className={clsx("absolute inset-0 h-full w-full transition-opacity duration-500", on ? "opacity-100" : "opacity-0")} />
+      <canvas ref={canvas} className={clsx("absolute inset-0 h-full w-full transition-opacity duration-500", shown ? "opacity-100" : "opacity-0")} />
     </div>
   );
 }
