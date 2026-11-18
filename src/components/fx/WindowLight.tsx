@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { onIdle } from "@/lib/idle";
 
 const VERT = `
 attribute vec2 a;
@@ -157,16 +158,15 @@ export function WindowLight({ className }: { className?: string }) {
     }
     let cleanup: (() => void) | undefined;
     let cancelled = false;
-    const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 600));
-    const handle = ric(
+    const cancelIdle = onIdle(
       () => {
         if (!cancelled && canvas.current) cleanup = startLight(canvas.current, () => setFallback(true));
       },
-      { timeout: 2500 },
+      { timeout: 2500, fallbackMs: 600 },
     );
     return () => {
       cancelled = true;
-      (window.cancelIdleCallback ?? window.clearTimeout)(handle as number);
+      cancelIdle();
       cleanup?.();
     };
   }, []);
