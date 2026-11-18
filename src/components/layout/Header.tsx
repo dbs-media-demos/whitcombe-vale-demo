@@ -97,7 +97,7 @@ export function Header() {
           )}
         />
         <div className="relative flex h-[var(--header-h)] items-center justify-between gap-6 px-[var(--gutter)]">
-          <Link href="/" className="relative z-10 -my-2 inline-flex min-h-11 items-center py-2">
+          <Link href={pathname === "/v2" ? "/v2" : "/"} className="relative z-10 -my-2 inline-flex min-h-11 items-center py-2">
             <Logo />
             <span className="sr-only">{t(", home")}</span>
           </Link>

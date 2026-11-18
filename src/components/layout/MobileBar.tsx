@@ -15,7 +15,8 @@ export function MobileBar() {
   const biz = useBiz();
   const pathname = usePathname();
   const tel = telOf(biz);
-  const home = biz.preview || pathname === "/";
+  // "/v2" is the same homepage without the 3D hero
+  const home = biz.preview || pathname === "/" || pathname === "/v2";
   const cls = "mobile-bar-go flex min-h-12 items-center justify-center rounded-full bg-brass text-[0.95rem] font-medium text-ink";
   return (
     <div className={clsx("mobile-bar theme-ink fixed inset-x-0 bottom-0 z-[65] grid gap-2 border-t border-line !bg-ink px-3 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-2.5 md:hidden", tel ? "grid-cols-2" : "grid-cols-1")}>

@@ -316,6 +316,8 @@ export type ScalesScene = {
   /** Stops drawing for good (the last frame stays on the canvas while it fades out). */
   freeze: () => void;
   dispose: () => void;
+  /** Stills only: the scene's parts, so scripts/render-scales-layers.mjs can render them one by one. */
+  parts?: Record<string, unknown>;
 };
 
 export type ScalesOptions = {
@@ -614,6 +616,7 @@ export async function createScales(canvas: HTMLCanvasElement, opts: ScalesOption
   document.addEventListener("visibilitychange", onVis);
 
   return {
+    parts: opts.still ? { renderer, scene, camera, balance, beam, pans, pin, wall, floor, key, PIVOT_Y, ARM } : undefined,
     pointer(x, y) {
       s.lean = x;
       s.leanY = y;

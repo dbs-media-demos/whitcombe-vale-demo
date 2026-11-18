@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { preloadPhoneHero } from "@/components/home/preloadPhoneHero";
 import { PageShell } from "@/components/layout/PageShell";
-import { Threshold } from "@/components/home/Threshold";
+import { Threshold, type HeroKind } from "@/components/home/Threshold";
 import { Overture } from "@/components/home/Overture";
 import { Folio } from "@/components/home/Folio";
 import { PracticeIndex } from "@/components/sections/PracticeIndex";
@@ -33,10 +33,13 @@ import { trFor } from "@/i18n/tr";
  * stars, wins, counters, free offers or sales copy, and a plain contact section instead of "book a
  * consultation". English previews and the concept site keep their reviews.
  *
+ * `hero` is the only difference between the two homepages: "3d" on / (live three.js scales on a
+ * desktop), "2d" on /v2 and /for/<token>/v2 (no WebGL at all). Every section below is this one tree.
+ *
  * Phones (below 768 px or touch) read in another order, set with the .ph-o* classes in globals.css:
  * what we handle, reviews, what happens next and what it costs, lawyers and credentials, contact.
  */
-export function HomeContent({ biz = defaultBiz, children }: { biz?: Biz; children?: ReactNode }) {
+export function HomeContent({ biz = defaultBiz, hero = "3d", children }: { biz?: Biz; hero?: HeroKind; children?: ReactNode }) {
   const sr = biz.lang === "sr";
   const t = trFor(biz);
   preloadPhoneHero();
@@ -44,7 +47,7 @@ export function HomeContent({ biz = defaultBiz, children }: { biz?: Biz; childre
     <PageShell>
       {children}
       <div className="home-flow">
-        <Threshold />
+        <Threshold hero={hero} />
 
         {!biz.preview && (
           <div className="creds ph-o7 theme-ink border-y border-line py-5">

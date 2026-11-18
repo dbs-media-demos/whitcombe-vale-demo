@@ -12,6 +12,8 @@ import { site } from "@/content/site";
 import { useBiz, useT } from "@/components/preview/BizContext";
 import { L, num, telOf } from "@/lib/biz-core";
 import { HeroScales, HeroScalesStill } from "@/components/home/HeroScales";
+import { HeroScales2D } from "@/components/home/HeroScales2D";
+import { LightShafts } from "@/components/fx/LightShafts";
 import { Phone, Stars } from "@/components/ui/Icons";
 
 // The shader only starts when the browser is idle anyway, so its code loads after hydration. Desktop only.
@@ -34,7 +36,14 @@ const PHONE_SIZES = "(min-width: 768px) 28rem, 90vw";
  * headline, the Google rating, a Call button with the number and a still of the window, drawn
  * at once, with the next section peeking in below it.
  */
-export function Threshold() {
+export type HeroKind = "3d" | "2d";
+
+/**
+ * `hero="2d"` is /v2, the same homepage without any WebGL, for a slow laptop or a lead who'd rather not:
+ * the window's light is CSS (LightShafts) and the brass scales are cut-out layers of the same render,
+ * swung by a few lines of script (HeroScales2D). Everything else here, phones included, is shared.
+ */
+export function Threshold({ hero = "3d" }: { hero?: HeroKind }) {
   const biz = useBiz();
   const t = useT();
   const sr = biz.lang === "sr";
@@ -96,7 +105,7 @@ export function Threshold() {
           <img data-arch-img {...deskImg} />
         </picture>
         <div data-shade className="absolute inset-0 bg-ink opacity-10" />
-        {desk && <WindowLight className="opacity-80" />}
+        {hero === "2d" ? <LightShafts className="ph-hide opacity-80" /> : desk && <WindowLight className="opacity-80" />}
         {/* Intro: an ink curtain retracts upward, so the window seems to rise from the floor.
             It only covers the photo (never clips it), so the LCP image paints on the first frame. */}
         <div aria-hidden className="threshold-curtain ph-hide absolute inset-0 origin-top bg-ink" />
@@ -177,7 +186,7 @@ export function Threshold() {
         <div className="relative z-10 text-[clamp(3.2rem,min(9vw,15vh),10rem)]">
           {/* The firm's brass scales, in the hollow below line one: live 3D on a desktop with a mouse, a still otherwise */}
           <div data-seal className="pointer-events-none absolute left-[-0.4em] top-[0.78em] -z-10 w-[min(3.95em,52svh)]">
-            <HeroScales live={!sr} className="scales-in" />
+            {hero === "2d" ? <HeroScales2D calm={sr} className="scales-in" /> : <HeroScales live={!sr} className="scales-in" />}
           </div>
           <h1 id="hero-title" className="t-display leading-[0.9]">
             <span data-line="1" className="block">
