@@ -41,12 +41,22 @@ export function Header() {
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    let last = window.scrollY;
+    // Hidden flips only after a clear 12 px one way since the last turn: Lenis eases a scroll out in
+    // tiny steps (and can step back a pixel), which compared event to event flickered the header.
+    let anchor = window.scrollY;
+    let hid = false;
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 40);
-      setHidden(y > 320 && y > last + 4 ? true : y < last - 4 ? false : (h) => h);
-      last = y;
+      if (y <= 320) {
+        hid = false;
+        anchor = y;
+      } else if (hid ? y > anchor : y < anchor) anchor = y; // still going the way it's set: follow the turning point
+      else if (Math.abs(y - anchor) > 12) {
+        hid = !hid;
+        anchor = y;
+      }
+      setHidden(hid);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
