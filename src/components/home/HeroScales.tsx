@@ -49,12 +49,12 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
     };
 
     // Too slow here: back to the still (the canvas fades out on its last frame), the renderer is freed
-    // and every scene keeps its still for the rest of the visit
+    // and every scene keeps its still for this page load (two slow loads: the rest of the visit)
     const fallBack = () => {
       if (cancelled || !sc) return;
       on.current = false;
       sc.freeze();
-      keepStillForVisit();
+      keepStillForVisit("slow");
       setShown(false);
       timers.push(window.setTimeout(teardown, 900));
     };
@@ -63,7 +63,7 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
       const t0 = performance.now();
       // A real graphics chip or the still: checked before three.js is even fetched
       const gl = gpuContext(el);
-      if (!gl) return keepStillForVisit();
+      if (!gl) return keepStillForVisit("gpu");
       const watch = frameWatch((v) => {
         performance.mark("scales:verdict", { detail: v });
         if (!v.pass) fallBack();
