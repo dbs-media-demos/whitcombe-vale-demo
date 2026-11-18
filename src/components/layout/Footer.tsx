@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Mark } from "@/components/brand/Logo";
+import { LeadLogo } from "@/components/brand/LeadLogo";
 import { OpenBadge } from "@/components/ui/OpenBadge";
 import { DrawRule } from "@/components/ui/Reveal";
 import { practices } from "@/content/practice";
 import { addressLine, agencyName, agencyUrl, hoursSummary, site } from "@/content/site";
 import { defaultBiz } from "@/lib/biz";
-import { chaptersFor, DAY_NAMES, dayRange, telOf, weekFromMonday, type Biz } from "@/lib/biz-core";
+import { chaptersFor, DAY_NAMES, dayRange, listOf, telOf, weekFromMonday, type Biz } from "@/lib/biz-core";
 import { trFor } from "@/i18n/tr";
 
 const firmLinks = [
@@ -94,6 +95,7 @@ export function Footer({ biz = defaultBiz }: { biz?: Biz }) {
                 </>
               )}
             </address>
+            {biz.areas.length > 1 && <p className="mt-3 text-sm text-muted">{sr ? `Radimo za klijente iz mesta ${listOf(biz, biz.areas)}.` : `Serving ${listOf(biz, biz.areas)}.`}</p>}
             {!biz.preview && (
               <a href={`mailto:${site.email}`} className="mt-3 inline-flex min-h-9 items-center text-fg/85 underline decoration-line-strong underline-offset-4 hover:text-fg">
                 {site.email}
@@ -115,7 +117,12 @@ export function Footer({ biz = defaultBiz }: { biz?: Biz }) {
 
         <DrawRule className="foot-rule mt-20" />
 
-        {/* Oversized wordmark, set like a book spine */}
+        {/* Oversized wordmark, set like a book spine (a preview with its own logo: that logo, large) */}
+        {biz.logo ? (
+          <div className="foot-mark mt-12">
+            <LeadLogo svg={biz.logo.svg} label={biz.name} className="h-[clamp(56px,9vw,150px)] max-w-full text-fg/95" />
+          </div>
+        ) : (
         <div aria-hidden className="foot-mark mt-12 flex items-end justify-between gap-6">
           {biz.preview ? (
             <p className="t-display min-w-0 select-none text-[clamp(2.2rem,7vw,7.5rem)] leading-[0.95] text-fg/95 [overflow-wrap:anywhere]">{biz.shortName}</p>
@@ -126,6 +133,7 @@ export function Footer({ biz = defaultBiz }: { biz?: Biz }) {
           )}
           <Mark className="mb-2 hidden h-20 w-20 shrink-0 text-fg lg:block" />
         </div>
+        )}
 
         <div className="foot-legal mt-12 grid gap-6 border-t border-line pt-8 text-[0.8rem] leading-relaxed text-muted lg:grid-cols-12">
           <p className="lg:col-span-7">

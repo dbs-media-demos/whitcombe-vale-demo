@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { useBiz } from "@/components/preview/BizContext";
 import { L } from "@/lib/biz-core";
+import { LeadLogo } from "./LeadLogo";
 
 /**
  * The W/V ligature: a W is literally two V's. The first V is drawn in the
@@ -27,6 +28,8 @@ export function Mark({ className, accent = "var(--brass)", title }: { className?
 
 export function Logo({ className, compact }: { className?: string; compact?: boolean }) {
   const biz = useBiz();
+  // A preview with the business's own logo: theirs, in the header's ink (currentColor)
+  if (biz.logo) return <LeadLogo svg={biz.logo.svg} label={biz.name} className={clsx("h-9 max-w-[12rem] sm:max-w-[16rem]", className)} />;
   return (
     <span className={clsx("inline-flex items-center gap-3", className)}>
       <Mark className="h-9 w-9 shrink-0" />

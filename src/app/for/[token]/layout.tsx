@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BizProvider } from "@/components/preview/BizContext";
 import { PreviewGuard } from "@/components/preview/PreviewGuard";
 import { SiteChrome } from "@/components/layout/SiteChrome";
+import { LeadLoader } from "@/components/preview/LeadLoader";
 import { previewBiz } from "@/lib/preview";
 import { dictFor } from "@/i18n/tr";
 
@@ -20,6 +21,7 @@ export default async function PreviewLayout({ children, params }: { children: Re
   if (!biz) notFound();
   return (
     <BizProvider biz={biz} dict={dictFor(biz)}>
+      {biz.logo && <LeadLoader token={token} svg={biz.logo.svg} />}
       <div className={biz.lang === "sr" ? "sober contents" : "contents"}>
         <SiteChrome biz={biz}>{children}</SiteChrome>
       </div>

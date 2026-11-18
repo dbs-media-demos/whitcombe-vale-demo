@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-US" className={`${display.variable} ${serif.variable} ${sans.variable}`}>
+    <html lang="en-US" className={`${display.variable} ${serif.variable} ${sans.variable}`} suppressHydrationWarning>
       <body className="theme-paper min-h-dvh">
         <link rel="preload" href="/fonts/caslon-display-phone.woff2" as="font" type="font/woff2" crossOrigin="anonymous" media="(max-width: 767px), (pointer: coarse)" />
         <link rel="preload" href="/fonts/caslon-italic-phone.woff2" as="font" type="font/woff2" crossOrigin="anonymous" media="(max-width: 767px), (pointer: coarse)" />

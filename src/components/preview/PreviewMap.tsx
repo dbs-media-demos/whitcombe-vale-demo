@@ -30,6 +30,18 @@ export function PreviewMap({ biz }: { biz: Biz }) {
           </h2>
           {biz.address.full && <address className="mt-6 max-w-md font-serif text-lg not-italic leading-snug">{biz.address.full}</address>}
           <p className="mt-3 max-w-md text-muted">{L(biz, "Meetings at the office, by phone or by video.", "Sastanci u kancelariji, po dogovoru.")}</p>
+          {biz.areas.length > 1 && (
+            <div className="mt-8">
+              <p className="t-caps-sm text-muted">{L(biz, "Clients from", "Klijenti iz mesta")}</p>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {biz.areas.map((a) => (
+                  <li key={a} className="border border-line-strong px-3.5 py-1.5 font-serif text-[0.95rem]">
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="mt-10">
             <OpenBadge className="t-caps-sm text-accent" />
             <HoursLedger biz={biz} className="mt-3 max-w-sm" />

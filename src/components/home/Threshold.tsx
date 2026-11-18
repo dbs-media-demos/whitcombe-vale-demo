@@ -96,7 +96,7 @@ export function Threshold({ hero = "3d" }: { hero?: HeroKind }) {
 
   return (
     <div ref={spacer} className="ph-o1">
-    <section ref={root} aria-labelledby="hero-title" className="threshold theme-ink relative h-[100svh] min-h-[620px] overflow-hidden">
+    <section ref={root} data-hero aria-labelledby="hero-title" className="threshold theme-ink relative h-[100svh] min-h-[620px] overflow-hidden">
       {/* The window: a full-bleed photo clipped to an arch */}
       <div data-arch className="threshold-arch absolute inset-0 overflow-hidden">
         <picture>

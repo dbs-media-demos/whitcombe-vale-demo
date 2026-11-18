@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { PHONE_QUERY } from "@/lib/gsap";
+import { whenLoaderDone } from "@/lib/loader";
 import { frameWatch, gpuContext, keepStillForVisit, stillForVisit } from "@/lib/live-3d";
 import type { ScalesScene } from "@/components/fx/scales/scene";
 
@@ -83,7 +84,11 @@ export function HeroScales({ live = true, className }: { live?: boolean; classNa
       // The still and the first frame match, so the fade is invisible; then the balance moves
       on.current = true;
       setShown(true);
-      timers.push(window.setTimeout(() => scene.intro(), 650));
+      // The balance moves once a preview's logo loader has started to leave, not behind it
+      off.push(whenLoaderDone(() => {
+        const t = window.setTimeout(() => scene.intro(), 650);
+        return () => window.clearTimeout(t);
+      }));
 
       let lastY = window.scrollY;
       let onScreen = true;

@@ -9,6 +9,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // A second dev/test server can build into its own folder (NEXT_DIST_DIR=.next-dev) without touching the running one
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   // One render-blocking round trip less for a first visit on a slow phone (the lead opening our link):
   // the 18 KB of CSS arrives with the HTML

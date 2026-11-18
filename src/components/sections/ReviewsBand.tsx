@@ -30,6 +30,8 @@ export function ReviewsBand({ biz = defaultBiz }: { biz?: Biz }) {
   const t = trFor(biz);
   const list = reviews;
   const area = biz.preview ? biz.area : undefined;
+  // A preview that knows their towns signs the letters from them in turn
+  const areaAt = (i: number) => (biz.areas.length > 1 ? biz.areas[i % biz.areas.length] : area);
   return (
     <section aria-labelledby="reviews-title" className="reviews-band ph-o3 theme-ink relative overflow-hidden py-28 md:py-36">
       <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12 lg:items-end">
@@ -86,7 +88,7 @@ export function ReviewsBand({ biz = defaultBiz }: { biz?: Biz }) {
               <ReviewCard
                 r={r}
                 text={t(r.text)}
-                area={area}
+                area={areaAt(i)}
                 className={`letter ${["-rotate-[0.9deg]", "rotate-[0.6deg] translate-y-2", "rotate-[-0.3deg] -translate-y-1", "rotate-[1deg]"][i % 4]}`}
               />
             </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import clsx from "clsx";
 import { PHONE_QUERY } from "@/lib/gsap";
+import { loaderShowing, whenLoaderDone } from "@/lib/loader";
 import layout from "@/components/home/scales-layers.json";
 
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -137,16 +138,22 @@ export function HeroScales2D({ calm = false, className }: { calm?: boolean; clas
     s.progress = progress();
 
     // About a second in, as the scales finish rising: a weight seems to settle in the right pan
-    const t = window.setTimeout(
-      () => {
-        s.om = calm ? -0.24 : -0.42;
-        s.phv[1] = calm ? -0.06 : -0.12;
-        wake();
-      },
-      Math.max(0, 1150 - performance.now()),
-    );
+    // (counted from the moment a preview's logo loader starts to leave, when there is one)
+    let t = 0;
+    const waited = loaderShowing();
+    const stopWaiting = whenLoaderDone(() => {
+      t = window.setTimeout(
+        () => {
+          s.om = calm ? -0.24 : -0.42;
+          s.phv[1] = calm ? -0.06 : -0.12;
+          wake();
+        },
+        waited ? 1150 : Math.max(0, 1150 - performance.now()),
+      );
+    });
 
     return () => {
+      stopWaiting();
       window.clearTimeout(t);
       cancelAnimationFrame(raf);
       io.disconnect();
